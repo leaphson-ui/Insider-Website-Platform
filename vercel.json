@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "name": "insider-alpha-platform",
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "env": {
+    "REACT_APP_API_URL": "https://insider-alpha-backend.onrender.com/api"
+  }
+}
