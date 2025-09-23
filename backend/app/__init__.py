@@ -1,3 +1,0 @@
-# Insider Alpha Platform Backend
-
-

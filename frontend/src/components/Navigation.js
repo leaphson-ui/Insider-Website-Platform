@@ -11,18 +11,6 @@ const Navigation = () => {
             Insider
           </Link>
         </div>
-
-        {/* Navigation Links - Removed */}
-
-        {/* Call-to-Action Buttons */}
-        <div className="navbar-actions">
-          <Link to="/trial" className="btn-start-trial">
-            Start Trial
-          </Link>
-          <Link to="/login" className="btn-login">
-            Login
-          </Link>
-        </div>
       </div>
     </header>
   );
