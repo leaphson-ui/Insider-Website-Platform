@@ -10,7 +10,7 @@ const Homepage = () => {
       <section className="hero-section py-24">
         <div className="container text-center">
           <h1 className="hero-title">
-            <span className="gradient-text">A modern insider trading intelligence platform</span>
+            <span className="gradient-text">A modern insider trading intelligence platform.</span>
           </h1>
           <p className="hero-subtitle">
             Uncover unusual insider activity and follow the smart money in real time.
