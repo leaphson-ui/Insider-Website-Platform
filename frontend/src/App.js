@@ -5,7 +5,6 @@ import './styles/globals.css';
 
 // Pages
 import Homepage from './pages/Homepage';
-import Dashboard from './pages/Dashboard';
 import EnhancedDashboard from './pages/EnhancedDashboard';
 import PortfolioLeaderboard from './pages/PortfolioLeaderboard';
 import CompanyPage from './pages/CompanyPage';
