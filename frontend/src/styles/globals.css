@@ -664,6 +664,78 @@ body {
   flex-wrap: wrap;
 }
 
+/* Hero Search Bar */
+.hero-search {
+  max-width: 600px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.search-container {
+  position: relative;
+  width: 100%;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 2px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.search-input-wrapper:focus-within {
+  border-color: var(--accent-blue);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  color: var(--text-muted);
+  z-index: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 16px 20px 16px 48px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+  font-size: 16px;
+}
+
+.search-button {
+  position: absolute;
+  right: 8px;
+  background: var(--accent-blue);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-button:hover {
+  background: var(--accent-blue-hover);
+  transform: translateY(-1px);
+}
+
 /* CheddarFlow Feature Module */
 .cheddarflow-module {
   background: linear-gradient(135deg, var(--gradient-purple-start) 0%, var(--gradient-purple-end) 100%);
@@ -1067,35 +1139,46 @@ body {
   flex: 1;
 }
 
+/* Core Features Section - Reduce top padding */
+section.py-32 {
+  padding-top: 1rem !important;
+  padding-bottom: 4rem !important;
+}
+
 /* CheddarFlow Feature Cards - Exact Match */
 .cheddarflow-feature-card {
   background: transparent;
   padding: 0;
-  text-align: left;
+  text-align: center;
   height: 100%;
 }
 
 .feature-content {
   display: flex !important;
-  align-items: flex-start;
-  gap: 16px;
+  align-items: center;
+  gap: 0;
   height: 100%;
-  flex-direction: row !important;
+  flex-direction: column !important;
   width: 100%;
 }
 
-.cheddarflow-icon {
-  width: 56px;
-  height: 56px;
-  background: transparent;
-  border-radius: 50%;
+.feature-icon {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.gradient-icon {
+  width: 128px;
+  height: 128px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0;
-  border: 2px solid;
-  border-image: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-purple) 100%) 1;
-  flex-shrink: 0;
+}
+
+.gradient-icon svg {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
 }
 
 .feature-text {
@@ -1103,6 +1186,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  text-align: center;
 }
 
 .cheddarflow-feature-title {
@@ -1116,7 +1200,7 @@ body {
 .cheddarflow-feature-description {
   font-size: 0.875rem;
   color: var(--text-secondary);
-  margin: 0;
+  margin: 0 0 1rem 0;
   line-height: 1.5;
 }
 
@@ -1222,6 +1306,7 @@ body {
   text-decoration: none !important;
 }
 
+
 /* Mobile Navigation */
 @media (max-width: 768px) {
   .navbar-container {
@@ -1251,6 +1336,84 @@ body {
 header {
   background: black !important;
   border: none !important;
+}
+
+/* Hide scrollbar but keep functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar { 
+  display: none;  /* Safari and Chrome */
+}
+
+/* 21st.dev Testimonials Component - Exact Match */
+.testimonial-card-large {
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.testimonial-card-small {
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.testimonial-card-small.variant-mixed {
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+}
+
+.testimonial-card-large:hover,
+.testimonial-card-small:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  border-color: var(--accent-blue);
+  background: linear-gradient(135deg, rgba(255, 194, 153, 0.35) 0%, rgba(168, 85, 247, 0.35) 50%, rgba(59, 130, 246, 0.35) 100%);
+}
+
+.testimonial-header {
+  margin-bottom: 24px;
+}
+
+.testimonial-content {
+  height: 100%;
+}
+
+.testimonial-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.testimonial-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .testimonial-card-large,
+  .testimonial-card-medium,
+  .testimonial-card-small {
+    grid-column: span 1;
+    grid-row: span 1;
+    padding: 20px;
+  }
 }
 
 header a, header a:visited, header a:link, header a:active {

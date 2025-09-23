@@ -6,6 +6,31 @@ import Layout from '../components/Layout';
 const Homepage = () => {
   return (
     <Layout>
+      {/* SVG Gradient Definitions */}
+      <svg width="0" height="0" style={{ position: 'absolute' }}>
+        <defs>
+          <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFB366" />
+            <stop offset="50%" stopColor="#FF8A80" />
+            <stop offset="100%" stopColor="#B39DDB" />
+          </linearGradient>
+          <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFB366" />
+            <stop offset="50%" stopColor="#FF8A80" />
+            <stop offset="100%" stopColor="#B39DDB" />
+          </linearGradient>
+          <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFB366" />
+            <stop offset="50%" stopColor="#FF8A80" />
+            <stop offset="100%" stopColor="#B39DDB" />
+          </linearGradient>
+          <linearGradient id="gradient4" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFB366" />
+            <stop offset="50%" stopColor="#FF8A80" />
+            <stop offset="100%" stopColor="#B39DDB" />
+          </linearGradient>
+        </defs>
+      </svg>
       {/* Hero Section */}
       <section className="hero-section py-24">
         <div className="container text-center">
@@ -15,6 +40,28 @@ const Homepage = () => {
           <p className="hero-subtitle">
             Uncover unusual insider activity and follow the smart money in real time.
           </p>
+          
+          {/* Search Bar */}
+          <div className="hero-search mb-8">
+            <div className="search-container">
+              <div className="search-input-wrapper">
+                <svg className="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <input 
+                  type="text" 
+                  placeholder="Search for insider trades, executives, or companies..." 
+                  className="search-input"
+                />
+                <button className="search-button">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12H19M12 5L19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          
           <div className="hero-ctas mb-16">
             <Link to="/dashboard">
               <Button className="btn-primary btn-lg">
@@ -107,6 +154,15 @@ const Homepage = () => {
           <div className="grid grid-cols-4 gap-8">
           <div className="cheddarflow-feature-card">
             <div className="feature-content">
+              <div className="feature-icon">
+                <div className="gradient-icon">
+                  <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+                    <circle cx="48" cy="48" r="40" fill="url(#gradient1)" stroke="url(#gradient1)" strokeWidth="4"/>
+                    <circle cx="40" cy="40" r="12" stroke="white" strokeWidth="3"/>
+                    <path d="M52 52L64 64" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+                  </svg>
+                </div>
+              </div>
               <div className="feature-text">
                 <h3 className="cheddarflow-feature-title">Track executive activity</h3>
                 <p className="cheddarflow-feature-description">Gain insights into the latest moves corporate executives and board members are making.</p>
@@ -115,6 +171,16 @@ const Homepage = () => {
           </div>
             <div className="cheddarflow-feature-card">
               <div className="feature-content">
+                <div className="feature-icon">
+                  <div className="gradient-icon">
+                    <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+                      <circle cx="48" cy="48" r="40" fill="url(#gradient2)" stroke="url(#gradient2)" strokeWidth="4"/>
+                      <path d="M32 40C40 40 40 48 48 48C56 48 56 40 64 40" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+                      <path d="M32 48C40 48 40 56 48 56C56 56 56 48 64 48" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+                      <path d="M32 56C40 56 40 64 48 64C56 64 56 56 64 56" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+                    </svg>
+                  </div>
+                </div>
                 <div className="feature-text">
                   <h3 className="cheddarflow-feature-title">Fast, reliable SEC data</h3>
                   <p className="cheddarflow-feature-description">Get the latest Form 4 filings delivered to you quickly and accurately.</p>
@@ -123,6 +189,16 @@ const Homepage = () => {
             </div>
             <div className="cheddarflow-feature-card">
               <div className="feature-content">
+                <div className="feature-icon">
+                  <div className="gradient-icon">
+                    <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+                      <circle cx="48" cy="48" r="40" fill="url(#gradient3)" stroke="url(#gradient3)" strokeWidth="4"/>
+                      <rect x="36" y="24" width="24" height="48" rx="4" stroke="white" strokeWidth="4"/>
+                      <circle cx="48" cy="36" r="2" fill="white"/>
+                      <rect x="42" y="44" width="12" height="2" fill="white"/>
+                    </svg>
+                  </div>
+                </div>
                 <div className="feature-text">
                   <h3 className="cheddarflow-feature-title">Superior user experience</h3>
                   <p className="cheddarflow-feature-description">Enjoy an intuitive interface that makes it easy to find the information you need.</p>
@@ -131,6 +207,14 @@ const Homepage = () => {
             </div>
             <div className="cheddarflow-feature-card">
               <div className="feature-content">
+                <div className="feature-icon">
+                  <div className="gradient-icon">
+                    <svg width="96" height="96" viewBox="0 0 96 96" fill="none">
+                      <circle cx="48" cy="48" r="40" fill="url(#gradient4)" stroke="url(#gradient4)" strokeWidth="4"/>
+                      <path d="M48 24L52 40L68 40L56 48L60 64L48 56L36 64L40 48L28 40L44 40L48 24Z" fill="white"/>
+                    </svg>
+                  </div>
+                </div>
                 <div className="feature-text">
                   <h3 className="cheddarflow-feature-title">Built to empower the retail investor</h3>
                   <p className="cheddarflow-feature-description">Our platform is designed to give individual investors the edge they need.</p>
@@ -208,70 +292,111 @@ const Homepage = () => {
         </div>
       </section>
 
-      {/* Bottom Feature Cards */}
-      <section className="bottom-feature-cards">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Go long or short */}
-            <div className="bg-card rounded-2xl p-8">
-              <h3 className="text-2xl font-bold text-primary mb-4">Go long or short</h3>
-              <p className="text-secondary mb-6">Profit from market upswings or capitalize on downward trends</p>
-              <div className="h-32 bg-gradient-to-r from-accent-green to-accent-blue rounded-lg flex items-center justify-center">
-                <div className="text-white text-center">
-                  <div className="text-4xl font-bold">+126.54%</div>
-                  <div className="text-sm opacity-80">Insider Performance</div>
-                </div>
-              </div>
-            </div>
 
-            {/* Capitalize on market movers */}
-            <div className="bg-card rounded-2xl p-8">
-              <h3 className="text-2xl font-bold text-primary mb-4">Capitalize on market movers</h3>
-              <p className="text-secondary mb-6">Maximize your profit potential and enjoy the benefits of a more strategic approach to day or swing trading.</p>
-              <div className="h-32 bg-gradient-to-r from-accent-purple to-accent-pink rounded-lg flex items-center justify-center">
-                <div className="text-white text-center">
-                  <div className="text-4xl font-bold">$2.4M</div>
-                  <div className="text-sm opacity-80">Total Insider Value</div>
-                </div>
-              </div>
-            </div>
+      {/* Community Section - 21st.dev Testimonials */}
+      <section className="py-16 md:py-32 bg-primary" style={{paddingTop: '100px'}}>
+        <div className="mx-auto max-w-6xl space-y-8 px-6 md:space-y-16">
+          <div className="relative z-10 mx-auto max-w-xl space-y-6 text-center md:space-y-12">
+            <h2 className="cheddarflow-title">From our community</h2>
+            <p className="text-lg text-secondary">See what our customers are saying about Insider Alpha</p>
           </div>
-        </div>
-      </section>
 
-      {/* Dive deep section */}
-      <section className="dive-deep-section">
-        <div className="container text-center">
-          <h2 className="text-4xl font-bold text-primary mb-8">Dive deep into insider trading data</h2>
-        </div>
-      </section>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="testimonial-card-small">
+              <div className="testimonial-content">
+                <blockquote className="grid h-full grid-rows-[1fr_auto] gap-6">
+                  <p className="text-primary">Insider Alpha has transformed the way I track insider activity. Their real-time alerts and comprehensive data have significantly accelerated my trading workflow.</p>
 
-      {/* Testimonial Section */}
-      <section className="testimonial-section">
-        <div className="container">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-bold text-primary mb-12">From our community</h2>
-            
-            <div className="bg-card rounded-2xl p-10 mb-8">
-              <p className="text-xl text-secondary mb-6 italic">
-                "Insider Alpha is an incredible tool for tracking insider trading and spotting great trading setups. The filtering functions and ability to customize really sets it apart from the rest."
-              </p>
-              <div className="flex items-center justify-center gap-4">
-                <div className="w-12 h-12 bg-accent-blue rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">TM</span>
-                </div>
-                <div className="text-left">
-                  <p className="text-primary font-semibold">Trader Mentality</p>
-                  <p className="text-secondary text-sm">Founder / Trader Mentality</p>
-                </div>
+                  <div className="grid grid-cols-[auto_1fr] gap-3">
+                    <div className="testimonial-avatar">
+                      <img
+                        src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=3387&q=80"
+                        alt="John Doe"
+                        height="48"
+                        width="48"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-primary">John Doe</p>
+                      <span className="text-secondary block text-sm">Software Engineer</span>
+                    </div>
+                  </div>
+                </blockquote>
               </div>
             </div>
+            
+            <div className="testimonial-card-small">
+              <div className="testimonial-content">
+                <blockquote className="grid h-full grid-rows-[1fr_auto] gap-6">
+                  <p className="text-primary">Insider Alpha is really extraordinary and very practical, no need to break your head. A real gold mine.</p>
 
-            <Link to="/leaderboard">
-              <Button variant="primary" size="lg">
-                See what our customers are saying →
-              </Button>
-            </Link>
+                  <div className="grid grid-cols-[auto_1fr] gap-3">
+                    <div className="testimonial-avatar">
+                      <img
+                        src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YXZhdGFyfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60"
+                        alt="Robert Johnson"
+                        height="48"
+                        width="48"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-primary">Robert Johnson</p>
+                      <span className="text-secondary block text-sm">Product Manager</span>
+                    </div>
+                  </div>
+                </blockquote>
+              </div>
+            </div>
+            
+            <div className="testimonial-card-small">
+              <div className="testimonial-content">
+                <blockquote className="grid h-full grid-rows-[1fr_auto] gap-6">
+                  <p className="text-primary">Great work on Insider Alpha. This is one of the best trading platforms that I have seen so far!</p>
+
+                  <div className="grid grid-cols-[auto_1fr] gap-3">
+                    <div className="testimonial-avatar">
+                      <img
+                        src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8YXZhdGFyfGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60"
+                        alt="Jane Smith"
+                        height="48"
+                        width="48"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-primary">Jane Smith</p>
+                      <span className="text-secondary block text-sm">Data Scientist</span>
+                    </div>
+                  </div>
+                </blockquote>
+              </div>
+            </div>
+            
+            <div className="testimonial-card-small variant-mixed">
+              <div className="testimonial-content">
+                <blockquote className="grid h-full grid-rows-[1fr_auto] gap-6">
+                  <p className="text-primary">Great work on Insider Alpha. This is one of the best trading platforms that I have seen so far!</p>
+
+                  <div className="grid grid-cols-[auto_1fr] gap-3">
+                    <div className="testimonial-avatar">
+                      <img
+                        src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGF2YXRhcnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60"
+                        alt="Emily Davis"
+                        height="48"
+                        width="48"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-primary">Emily Davis</p>
+                      <span className="text-secondary block text-sm">UX Designer</span>
+                    </div>
+                  </div>
+                </blockquote>
+              </div>
+            </div>
           </div>
         </div>
       </section>
