@@ -12,30 +12,7 @@ const Navigation = () => {
           </Link>
         </div>
 
-        {/* Navigation Links */}
-        <nav className="navbar-nav">
-          <Link to="/dashboard" className="nav-link">
-            Dashboard
-          </Link>
-          <Link to="/leaderboard" className="nav-link">
-            Leaderboard
-          </Link>
-          <Link to="/trades" className="nav-link">
-            Recent Trades
-          </Link>
-          <Link to="/analytics" className="nav-link">
-            Analytics
-          </Link>
-          <Link to="/risk-profiles" className="nav-link">
-            Risk Profiles
-          </Link>
-          <Link to="/timing" className="nav-link">
-            Timing Intel
-          </Link>
-          <Link to="/networks" className="nav-link">
-            Networks
-          </Link>
-        </nav>
+        {/* Navigation Links - Removed */}
 
         {/* Call-to-Action Buttons */}
         <div className="navbar-actions">

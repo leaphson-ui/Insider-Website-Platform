@@ -7,11 +7,10 @@ import './styles/globals.css';
 import Homepage from './pages/Homepage';
 import Dashboard from './pages/Dashboard';
 import EnhancedDashboard from './pages/EnhancedDashboard';
-import Leaderboard from './pages/Leaderboard';
-import RecentTrades from './pages/RecentTrades';
-import TraderProfile from './pages/TraderProfile';
 import PortfolioLeaderboard from './pages/PortfolioLeaderboard';
 import CompanyPage from './pages/CompanyPage';
+import InsiderProfile from './pages/InsiderProfile';
+import LeaderboardPage from './components/pages/LeaderboardPage';
 import Analytics from './pages/Analytics';
 import RiskProfiles from './pages/RiskProfiles';
 import TimingIntelligence from './pages/TimingIntelligence';
@@ -29,12 +28,15 @@ function App() {
         } />
         <Route path="/leaderboard" element={
           <Layout>
-            <Leaderboard />
+            <LeaderboardPage />
           </Layout>
         } />
         <Route path="/trades" element={
           <Layout>
-            <RecentTrades />
+            <div className="p-8">
+              <h1 className="text-2xl font-bold">Recent Trades</h1>
+              <p className="text-gray-600">This page is under construction.</p>
+            </div>
           </Layout>
         } />
         <Route path="/analytics" element={
@@ -62,9 +64,14 @@ function App() {
             <PortfolioLeaderboard />
           </Layout>
         } />
-        <Route path="/traders/:traderId" element={
+        <Route path="/trader/:traderId" element={
           <Layout>
-            <TraderProfile />
+            <InsiderProfile />
+          </Layout>
+        } />
+        <Route path="/company/:ticker" element={
+          <Layout>
+            <CompanyPage />
           </Layout>
         } />
         <Route path="/companies/:ticker" element={
