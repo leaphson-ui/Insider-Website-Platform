@@ -1,255 +1,340 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react'; 
 import { Link } from 'react-router-dom';
-import { useTheme } from '../contexts/ThemeContext';
-import DemoVisualization from '../components/DemoVisualization';
-import {
-  ChartBarIcon,
-  CurrencyDollarIcon,
-  UsersIcon,
-  ClockIcon,
-  ShareIcon,
-  EyeIcon,
-  ArrowRightIcon,
-  PlayIcon,
-  SparklesIcon,
-  TrophyIcon,
-  BoltIcon,
-  GlobeAltIcon
-} from '@heroicons/react/24/outline';
+import Button from '../components/ui/Button';
+import Layout from '../components/Layout';
 
 const Homepage = () => {
-  const { isDarkMode } = useTheme();
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
-
-  const features = [
-    {
-      icon: ChartBarIcon,
-      title: "Real-Time Analytics",
-      description: "Track insider trades as they happen with advanced performance metrics and conviction scoring.",
-      gradient: "from-blue-500 to-purple-600",
-      link: "/dashboard"
-    },
-    {
-      icon: TrophyIcon,
-      title: "Performance Leaderboard",
-      description: "Discover top-performing insiders ranked by returns, win rates, and trading consistency.",
-      gradient: "from-green-500 to-emerald-600",
-      link: "/leaderboard"
-    },
-    {
-      icon: CurrencyDollarIcon,
-      title: "Portfolio Tracking",
-      description: "Monitor insider holdings and portfolio values with real-time position tracking.",
-      gradient: "from-yellow-500 to-orange-600",
-      link: "/portfolio"
-    },
-    {
-      icon: ShareIcon,
-      title: "Network Intelligence",
-      description: "Uncover insider connections and coordinated trading patterns across companies.",
-      gradient: "from-purple-500 to-pink-600",
-      link: "/networks"
-    },
-    {
-      icon: ClockIcon,
-      title: "Timing Analysis",
-      description: "Analyze trading patterns, market timing, and behavioral insights of top insiders.",
-      gradient: "from-indigo-500 to-blue-600",
-      link: "/timing"
-    },
-    {
-      icon: BoltIcon,
-      title: "Live Trade Feed",
-      description: "Access the latest insider transactions with comprehensive filtering and analysis tools.",
-      gradient: "from-red-500 to-rose-600",
-      link: "/trades"
-    }
-  ];
-
-  const stats = [
-    { label: "Active Insiders", value: "10K+", icon: UsersIcon },
-    { label: "Tracked Trades", value: "419K+", icon: ChartBarIcon },
-    { label: "Companies", value: "5K+", icon: GlobeAltIcon },
-    { label: "Success Rate", value: "94%", icon: SparklesIcon }
-  ];
-
   return (
-    <div className="min-h-screen bg-primary">
+    <Layout>
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 via-purple-600/20 to-pink-600/20" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
-          <div className={`text-center transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-            <h1 className="text-6xl md:text-8xl font-bold text-primary mb-6 leading-tight">
-              Insider
-              <span className="block hero-gradient">
-                Intelligence
-              </span>
-            </h1>
-            <p className="text-xl md:text-2xl text-secondary max-w-3xl mx-auto mb-8 leading-relaxed">
-              The most advanced platform for tracking, analyzing, and profiting from corporate insider trading patterns.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-              <Link
-                to="/dashboard"
-                className="group inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-full hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-              >
-                <span>Start Analyzing</span>
-                <ArrowRightIcon className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <button className="group inline-flex items-center px-8 py-4 border-2 border-default text-primary font-semibold rounded-full hover:bg-secondary transition-all duration-300">
-                <PlayIcon className="mr-2 h-5 w-5" />
-                <span>Watch Demo</span>
-              </button>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-              {stats.map((stat, index) => (
-                <div key={stat.label} className={`transform transition-all duration-700 delay-${index * 100} ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-                  <div className="text-center">
-                    <stat.icon className="h-8 w-8 text-blue-500 mx-auto mb-2" />
-                    <div className="text-3xl font-bold text-primary mb-1">{stat.value}</div>
-                    <div className="text-sm text-secondary">{stat.label}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+      <section className="hero-section py-24">
+        <div className="container text-center">
+          <h1 className="hero-title">
+            <span className="gradient-text">A modern insider trading intelligence platform</span>
+          </h1>
+          <p className="hero-subtitle">
+            Uncover unusual insider activity and follow the smart money in real time.
+          </p>
+          <div className="hero-ctas mb-16">
+            <Link to="/dashboard">
+              <Button className="btn-primary btn-lg">
+                Start free 7 day trial
+              </Button>
+            </Link>
           </div>
         </div>
-
-        {/* Floating Elements */}
-        <div className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-full blur-xl float-animation" />
-        <div className="absolute bottom-20 right-10 w-32 h-32 bg-gradient-to-r from-purple-500/30 to-pink-500/30 rounded-full blur-xl float-animation" style={{animationDelay: '2s'}} />
-        <div className="absolute top-40 right-20 w-16 h-16 bg-gradient-to-r from-green-500/30 to-blue-500/30 rounded-full blur-xl float-animation" style={{animationDelay: '1s'}} />
-      </section>
-
-      {/* Features Section */}
-      <section className="py-24 bg-secondary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">
-              Everything you need to
-              <span className="block text-blue-500">dominate the market</span>
-            </h2>
-            <p className="text-xl text-secondary max-w-3xl mx-auto">
-              Comprehensive insider trading intelligence with institutional-grade analytics and real-time insights.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <Link
-                key={feature.title}
-                to={feature.link}
-                className={`group block transform transition-all duration-500 delay-${index * 100} hover:scale-105 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
-              >
-                <div className="relative h-full p-8 bg-primary rounded-3xl border border-default hover:border-blue-500/50 transition-all duration-300 overflow-hidden">
-                  {/* Gradient Background */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-                  
-                  {/* Icon */}
-                  <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-br ${feature.gradient} mb-6`}>
-                    <feature.icon className="h-8 w-8 text-white" />
-                  </div>
-
-                  {/* Content */}
-                  <h3 className="text-xl font-bold text-primary mb-3 group-hover:text-blue-500 transition-colors">
-                    {feature.title}
-                  </h3>
-                  <p className="text-secondary leading-relaxed mb-4">
-                    {feature.description}
-                  </p>
-
-                  {/* Arrow */}
-                  <div className="flex items-center text-blue-500 font-semibold">
-                    <span className="mr-2">Explore</span>
-                    <ArrowRightIcon className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Technology Section */}
-      <section className="py-24 bg-primary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <h2 className="text-4xl md:text-5xl font-bold text-primary mb-6">
-                Built with
-                <span className="block text-purple-500">cutting-edge technology</span>
-              </h2>
-              <p className="text-xl text-secondary mb-8 leading-relaxed">
-                Our platform processes millions of SEC filings in real-time, delivering institutional-grade analytics with consumer-friendly interfaces.
-              </p>
+        
+        {/* Product Imagery - Platform Interface Screenshot */}
+        <div className="product-showcase mt-32">
+          <div className="browser-frame">
+            <div className="browser-header">
+              <div className="browser-controls">
+                <span className="control-dot bg-red-500"></span>
+                <span className="control-dot bg-yellow-500"></span>
+                <span className="control-dot bg-green-500"></span>
+              </div>
+              <div className="browser-url">app.insideralpha.com</div>
+            </div>
+            <div className="platform-interface">
+              {/* Mock platform interface showing insider trading data */}
+              <div className="interface-sidebar">
+                <div className="sidebar-icon">📊</div>
+                <div className="sidebar-icon">📈</div>
+                <div className="sidebar-icon">👥</div>
+                <div className="sidebar-icon">⚙️</div>
+              </div>
               
-              <div className="space-y-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mr-4">
-                    <BoltIcon className="h-6 w-6 text-white" />
+              <div className="interface-main">
+                <div className="data-panels">
+                  <div className="panel">
+                    <h3>Insider Sentiment</h3>
+                    <div className="sentiment-value bullish">Bullish</div>
+                    <div className="sentiment-bar">
+                      <div className="bar-fill bullish" style={{width: '75%'}}></div>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-primary">Real-time Processing</h3>
-                    <p className="text-secondary">SEC Form 4 filings processed within minutes of submission</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mr-4">
-                    <SparklesIcon className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-primary">AI-Powered Insights</h3>
-                    <p className="text-secondary">Machine learning algorithms identify patterns and anomalies</p>
+                  
+                  <div className="panel">
+                    <h3>Trade Volume</h3>
+                    <div className="volume-value">$2.4M</div>
+                    <div className="volume-change positive">+12.4%</div>
                   </div>
                 </div>
                 
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mr-4">
-                    <EyeIcon className="h-6 w-6 text-white" />
+                <div className="trades-table">
+                  <div className="table-header">
+                    <div className="header-cell">TIME</div>
+                    <div className="header-cell">INSIDER</div>
+                    <div className="header-cell">COMPANY</div>
+                    <div className="header-cell">SHARES</div>
+                    <div className="header-cell">VALUE</div>
+                    <div className="header-cell">TYPE</div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-primary">Comprehensive Coverage</h3>
-                    <p className="text-secondary">Track 10,000+ insiders across 5,000+ public companies</p>
+                  <div className="table-row">
+                    <div className="cell">09:33:16</div>
+                    <div className="cell">J. Smith</div>
+                    <div className="cell">AAPL</div>
+                    <div className="cell">50,000</div>
+                    <div className="cell positive">$8.2M</div>
+                    <div className="cell">BUY</div>
+                  </div>
+                  <div className="table-row">
+                    <div className="cell">09:28:44</div>
+                    <div className="cell">M. Johnson</div>
+                    <div className="cell">TSLA</div>
+                    <div className="cell">25,000</div>
+                    <div className="cell positive">$4.1M</div>
+                    <div className="cell">BUY</div>
+                  </div>
+                  <div className="table-row">
+                    <div className="cell">09:15:22</div>
+                    <div className="cell">S. Davis</div>
+                    <div className="cell">NVDA</div>
+                    <div className="cell">15,000</div>
+                    <div className="cell negative">$2.8M</div>
+                    <div className="cell">SELL</div>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
 
-            {/* Visualization */}
-            <div className="relative">
-              <DemoVisualization />
+      {/* Core Features Section - CheddarFlow Style */}
+      <section className="py-32 bg-primary mb-16">
+        <div className="container">
+          <div className="grid grid-cols-4 gap-8">
+          <div className="cheddarflow-feature-card">
+            <div className="feature-content">
+              <div className="feature-text">
+                <h3 className="cheddarflow-feature-title">Track executive activity</h3>
+                <p className="cheddarflow-feature-description">Gain insights into the latest moves corporate executives and board members are making.</p>
+              </div>
+            </div>
+          </div>
+            <div className="cheddarflow-feature-card">
+              <div className="feature-content">
+                <div className="feature-text">
+                  <h3 className="cheddarflow-feature-title">Fast, reliable SEC data</h3>
+                  <p className="cheddarflow-feature-description">Get the latest Form 4 filings delivered to you quickly and accurately.</p>
+                </div>
+              </div>
+            </div>
+            <div className="cheddarflow-feature-card">
+              <div className="feature-content">
+                <div className="feature-text">
+                  <h3 className="cheddarflow-feature-title">Superior user experience</h3>
+                  <p className="cheddarflow-feature-description">Enjoy an intuitive interface that makes it easy to find the information you need.</p>
+                </div>
+              </div>
+            </div>
+            <div className="cheddarflow-feature-card">
+              <div className="feature-content">
+                <div className="feature-text">
+                  <h3 className="cheddarflow-feature-title">Built to empower the retail investor</h3>
+                  <p className="cheddarflow-feature-description">Our platform is designed to give individual investors the edge they need.</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 gradient-shift">
-        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-            Ready to unlock insider intelligence?
-          </h2>
-          <p className="text-xl text-blue-100 mb-8">
-            Join thousands of investors already using our platform to make smarter trading decisions.
-          </p>
-          <Link
-            to="/dashboard"
-            className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-bold rounded-full hover:bg-gray-100 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl pulse-glow"
-          >
-            <span>Get Started Now</span>
-            <ArrowRightIcon className="ml-2 h-5 w-5" />
-          </Link>
+      {/* Main Feature Module - CheddarFlow Style */}
+      <section className="py-24 bg-primary mt-20">
+        <div className="container">
+          <div className="cheddarflow-module">
+            <div className="cheddarflow-module-content">
+              {/* Left Panel - Text Content */}
+              <div className="cheddarflow-text-content">
+                <h2 className="cheddarflow-title">
+                  Profit with <span className="cheddarflow-highlight">insider alerts</span>
+                </h2>
+                <p className="cheddarflow-description">
+                  Our AI-driven system constantly scans the market for unusual insider trading activity, detecting large, influential trades. When a potential trade opportunity emerges, the system triggers an Insider Alert.
+                </p>
+                <Link to="/dashboard">
+                  <Button className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-3 rounded-lg transition-colors">
+                    Learn More
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Right Panel - Data Visualization */}
+              <div className="cheddarflow-data-panel">
+                <div className="mb-4">
+                  <h3 className="text-white font-semibold">Contract Volume/OI: AAPL 125C 12/31/2025</h3>
+                </div>
+                
+                {/* Simple Chart Placeholder */}
+                <div className="cheddarflow-chart">
+                  <div className="cheddarflow-chart-line"></div>
+                  <div className="cheddarflow-alert-marker">
+                    <div className="cheddarflow-marker-dot"></div>
+                    <div className="cheddarflow-alert-label">Insider Alert: $1.80</div>
+                  </div>
+                </div>
+
+                {/* Trade Details */}
+                <div className="cheddarflow-trade-details">
+                  <div className="cheddarflow-detail-header">
+                    <span className="cheddarflow-timestamp">3:53:44 PM</span>
+                    <span className="cheddarflow-sentiment bullish">BULLISH</span>
+                  </div>
+                  
+                  <div className="cheddarflow-detail-grid">
+                    <div className="cheddarflow-detail-item">
+                      <div className="cheddarflow-detail-label">TICKER</div>
+                      <div className="cheddarflow-detail-value">AAPL</div>
+                    </div>
+                    <div className="cheddarflow-detail-item">
+                      <div className="cheddarflow-detail-label">SHARES</div>
+                      <div className="cheddarflow-detail-value">50,000</div>
+                    </div>
+                    <div className="cheddarflow-detail-item">
+                      <div className="cheddarflow-detail-label">VALUE</div>
+                      <div className="cheddarflow-detail-value">$8.2M</div>
+                    </div>
+                    <div className="cheddarflow-detail-item">
+                      <div className="cheddarflow-detail-label">CHANGE</div>
+                      <div className="cheddarflow-detail-value positive">+76.54%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
-    </div>
+
+      {/* Bottom Feature Cards */}
+      <section className="bottom-feature-cards">
+        <div className="container">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Go long or short */}
+            <div className="bg-card rounded-2xl p-8">
+              <h3 className="text-2xl font-bold text-primary mb-4">Go long or short</h3>
+              <p className="text-secondary mb-6">Profit from market upswings or capitalize on downward trends</p>
+              <div className="h-32 bg-gradient-to-r from-accent-green to-accent-blue rounded-lg flex items-center justify-center">
+                <div className="text-white text-center">
+                  <div className="text-4xl font-bold">+126.54%</div>
+                  <div className="text-sm opacity-80">Insider Performance</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Capitalize on market movers */}
+            <div className="bg-card rounded-2xl p-8">
+              <h3 className="text-2xl font-bold text-primary mb-4">Capitalize on market movers</h3>
+              <p className="text-secondary mb-6">Maximize your profit potential and enjoy the benefits of a more strategic approach to day or swing trading.</p>
+              <div className="h-32 bg-gradient-to-r from-accent-purple to-accent-pink rounded-lg flex items-center justify-center">
+                <div className="text-white text-center">
+                  <div className="text-4xl font-bold">$2.4M</div>
+                  <div className="text-sm opacity-80">Total Insider Value</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Dive deep section */}
+      <section className="dive-deep-section">
+        <div className="container text-center">
+          <h2 className="text-4xl font-bold text-primary mb-8">Dive deep into insider trading data</h2>
+        </div>
+      </section>
+
+      {/* Testimonial Section */}
+      <section className="testimonial-section">
+        <div className="container">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-4xl font-bold text-primary mb-12">From our community</h2>
+            
+            <div className="bg-card rounded-2xl p-10 mb-8">
+              <p className="text-xl text-secondary mb-6 italic">
+                "Insider Alpha is an incredible tool for tracking insider trading and spotting great trading setups. The filtering functions and ability to customize really sets it apart from the rest."
+              </p>
+              <div className="flex items-center justify-center gap-4">
+                <div className="w-12 h-12 bg-accent-blue rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">TM</span>
+                </div>
+                <div className="text-left">
+                  <p className="text-primary font-semibold">Trader Mentality</p>
+                  <p className="text-secondary text-sm">Founder / Trader Mentality</p>
+                </div>
+              </div>
+            </div>
+
+            <Link to="/leaderboard">
+              <Button variant="primary" size="lg">
+                See what our customers are saying →
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="footer-section border-t border-border">
+        <div className="container">
+          <div className="flex justify-between items-start mb-8">
+            <div>
+              <h3 className="text-xl font-bold text-primary mb-4">Insider Alpha</h3>
+              <p className="text-secondary text-sm max-w-md">
+                All the analysis information is for reference only and doesn't constitute an investment recommendation.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-8">
+              <div>
+                <h4 className="text-primary font-semibold mb-3">Product</h4>
+                <div className="space-y-2">
+                  <Link to="/dashboard" className="block text-secondary hover:text-primary transition-colors">Features</Link>
+                  <Link to="/leaderboard" className="block text-secondary hover:text-primary transition-colors">Pricing</Link>
+                  <Link to="/recent-trades" className="block text-secondary hover:text-primary transition-colors">Blog</Link>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-primary font-semibold mb-3">Legal</h4>
+                <div className="space-y-2">
+                  <Link to="/refund" className="block text-secondary hover:text-primary transition-colors">Refund policy</Link>
+                  <Link to="/terms" className="block text-secondary hover:text-primary transition-colors">Terms of service</Link>
+                  <Link to="/privacy" className="block text-secondary hover:text-primary transition-colors">Privacy Policy</Link>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-primary font-semibold mb-3">Follow</h4>
+                <div className="flex gap-4">
+                  <a href="#" className="text-secondary hover:text-primary transition-colors">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                    </svg>
+                  </a>
+                  <a href="#" className="text-secondary hover:text-primary transition-colors">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.746-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z"/>
+                    </svg>
+                  </a>
+                  <a href="#" className="text-secondary hover:text-primary transition-colors">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center text-secondary text-sm">
+            <p>&copy; {new Date().getFullYear()} Insider Alpha. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </Layout>
   );
 };
 

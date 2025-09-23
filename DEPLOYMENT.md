@@ -22,7 +22,10 @@ git commit -m "Initial commit - Insider Alpha Platform"
 
 # Create GitHub repository and push
 # Go to github.com and create a new repository called "insider-alpha-platform"
-git remote add origin https://github.com/YOUR_USERNAME/insider-alpha-platform.git
+git remote 
+    
+cally add origin   
+https://github.com/YOUR_USERNAME/insider-alpha-platform.git
 git branch -M main
 git push -u origin main
 ```
@@ -144,3 +147,5 @@ If deployment fails:
 4. Check database connection string format
 
 Your Insider Alpha platform will be live and accessible worldwide! 🌍
+
+

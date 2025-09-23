@@ -1,66 +1,54 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChartBarIcon, SunIcon, MoonIcon } from '@heroicons/react/24/outline';
-import { useTheme } from '../contexts/ThemeContext';
+import Button from './ui/Button';
 
 const Header = () => {
   const location = useLocation();
-  const { isDarkMode, toggleTheme } = useTheme();
 
-  const navigation = [
-    { name: 'Dashboard', href: '/dashboard' },
-    { name: 'Leaderboard', href: '/leaderboard' },
-    { name: 'Portfolio', href: '/portfolio' },
-    { name: 'Recent Trades', href: '/trades' },
-    { name: 'Networks', href: '/networks' },
-    { name: 'Timing Intel', href: '/timing' },
+  const navItems = [
+    { path: '/dashboard', label: 'Dashboard' },
+    { path: '/leaderboard', label: 'Leaderboard' },
+    { path: '/trades', label: 'Recent Trades' },
+    { path: '/networks', label: 'Networks' },
   ];
 
+  const isActive = (path) => location.pathname === path;
+
   return (
-    <header className="bg-secondary/80 backdrop-blur-md border-b border-default sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center group">
-              <ChartBarIcon className="h-8 w-8 text-brand-600 group-hover:text-brand-500 transition-colors" />
-              <div className="ml-2">
-                <div className="text-2xl font-bold text-primary">
-                  Insider
-                </div>
-                <div className="text-xs text-secondary -mt-1">
-                  Track. Analyze. Profit.
-                </div>
-              </div>
-            </Link>
-          </div>
+    <header className="bg-black sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-8">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo - Left */}
+          <Link to="/" className="flex items-center no-underline">
+            <div className="w-10 h-10 bg-yellow-400 flex items-center justify-center mr-4">
+              <span className="text-black font-bold text-lg">IA</span>
+            </div>
+            <span className="text-xl font-bold text-white">Insider Alpha</span>
+          </Link>
           
-          <nav className="hidden md:flex space-x-8">
-            {navigation.map((item) => (
+          {/* Nav Links - Center */}
+          <nav className="flex items-center space-x-12">
+            {navItems.map((item) => (
               <Link
-                key={item.name}
-                to={item.href}
-                className={`${
-                  location.pathname === item.href
-                    ? 'border-brand-500 text-brand-600'
-                    : 'border-transparent text-secondary hover:text-primary hover:border-default'
-                } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm transition-all duration-200`}
+                key={item.path}
+                to={item.path}
+                className="text-white text-sm font-medium flex items-center no-underline hover:no-underline"
               >
-                {item.name}
+                {item.label}
+                <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
               </Link>
             ))}
           </nav>
-
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg bg-tertiary border border-default hover:bg-secondary transition-all duration-200 group"
-              aria-label="Toggle theme"
-            >
-              {isDarkMode ? (
-                <SunIcon className="h-5 w-5 text-secondary group-hover:text-primary transition-colors" />
-              ) : (
-                <MoonIcon className="h-5 w-5 text-secondary group-hover:text-primary transition-colors" />
-              )}
+          
+          {/* CTA Buttons - Right */}
+          <div className="flex items-center space-x-3">
+            <button className="bg-white text-black px-6 py-2 rounded-md text-sm font-medium">
+              Start Trial
+            </button>
+            <button className="bg-gray-600 text-white px-6 py-2 rounded-md text-sm font-medium">
+              Login
             </button>
           </div>
         </div>

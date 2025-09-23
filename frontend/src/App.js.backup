@@ -1,0 +1,66 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Layout from './components/Layout';
+import './styles/globals.css';
+
+// Pages
+import Homepage from './pages/Homepage';
+import Dashboard from './pages/Dashboard';
+import Leaderboard from './pages/Leaderboard';
+import RecentTrades from './pages/RecentTrades';
+import TraderProfile from './pages/TraderProfile';
+import PortfolioLeaderboard from './pages/PortfolioLeaderboard';
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/dashboard" element={
+          <Layout>
+            <Dashboard />
+          </Layout>
+        } />
+        <Route path="/leaderboard" element={
+          <Layout>
+            <Leaderboard />
+          </Layout>
+        } />
+        <Route path="/trades" element={
+          <Layout>
+            <RecentTrades />
+          </Layout>
+        } />
+        <Route path="/networks" element={
+          <Layout>
+            <div className="text-center py-16">
+              <h1 className="text-3xl font-bold text-primary mb-4">Networks</h1>
+              <p className="text-secondary">Coming soon...</p>
+            </div>
+          </Layout>
+        } />
+        <Route path="/timing" element={
+          <Layout>
+            <div className="text-center py-16">
+              <h1 className="text-3xl font-bold text-primary mb-4">Timing Intelligence</h1>
+              <p className="text-secondary">Coming soon...</p>
+            </div>
+          </Layout>
+        } />
+        <Route path="/portfolio" element={
+          <Layout>
+            <PortfolioLeaderboard />
+          </Layout>
+        } />
+        <Route path="/traders/:traderId" element={
+          <Layout>
+            <TraderProfile />
+          </Layout>
+        } />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;

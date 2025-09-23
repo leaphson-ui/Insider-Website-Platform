@@ -83,3 +83,5 @@ echo "2. Start the backend: cd backend && source venv/bin/activate && python -m 
 echo "3. Start the frontend: cd frontend && npm start"
 echo "4. Run data ingestion: cd backend && source venv/bin/activate && python scripts/data_ingestion.py"
 echo "5. Run performance calculation: cd backend && source venv/bin/activate && python scripts/performance_calc.py"
+
+

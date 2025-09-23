@@ -33,3 +33,5 @@ echo ""
 echo "🔄 To update data regularly, run:"
 echo "  python scripts/automated_sec_data_manager.py"
 echo "  python scripts/performance_calc.py"
+
+

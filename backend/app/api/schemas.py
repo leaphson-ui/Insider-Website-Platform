@@ -61,3 +61,15 @@ class TraderResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class SearchSuggestionResponse(BaseModel):
+    type: str  # "trader" or "company"
+    id: Optional[int] = None
+    name: str
+    title: Optional[str] = None
+    company: str
+    ticker: str
+    display_text: str
+
+    class Config:
+        from_attributes = True

@@ -15,6 +15,7 @@ class Trader(Base):
     title = Column(String(255))
     company_ticker = Column(String(10), nullable=False, index=True)
     company_name = Column(String(255), nullable=False)
+    sector = Column(String(50), index=True)
     relationship_to_company = Column(String(100))
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())

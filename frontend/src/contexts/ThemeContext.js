@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
 
 const ThemeContext = createContext();
 
@@ -11,41 +11,29 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Check localStorage for saved theme preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      return savedTheme === 'dark';
-    }
-    // Default to dark mode (CheddarFlow style)
-    return true;
-  });
-
-  useEffect(() => {
-    // Apply theme to document root
-    const root = document.documentElement;
-    if (isDarkMode) {
-      root.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      root.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDarkMode]);
-
-  const toggleTheme = () => {
-    setIsDarkMode(prev => !prev);
-  };
-
-  const value = {
-    isDarkMode,
-    toggleTheme,
-    theme: isDarkMode ? 'dark' : 'light'
+  const theme = {
+    colors: {
+      primary: '#0a0a0a',
+      secondary: '#111111',
+      card: '#0f0f0f',
+      text: {
+        primary: '#ffffff',
+        secondary: '#a3a3a3',
+        muted: '#737373',
+      },
+      accent: {
+        blue: '#3b82f6',
+        green: '#10b981',
+        red: '#ef4444',
+      },
+    },
   };
 
   return (
-    <ThemeContext.Provider value={value}>
+    <ThemeContext.Provider value={theme}>
       {children}
     </ThemeContext.Provider>
   );
 };
+
+export default ThemeContext;

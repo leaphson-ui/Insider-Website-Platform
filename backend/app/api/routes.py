@@ -4,13 +4,13 @@ FastAPI routes for Insider Alpha Platform
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import text
+from sqlalchemy import text, func
 from typing import List, Optional
 from datetime import datetime, timedelta
 
 from ..database import get_db
 from ..models import Trader, Trade
-from .schemas import TraderResponse, TradeResponse, LeaderboardResponse
+from .schemas import TraderResponse, TradeResponse, LeaderboardResponse, SearchSuggestionResponse
 
 router = APIRouter()
 
@@ -24,29 +24,49 @@ async def get_leaderboard(
     Get the top performing insiders ranked by performance score
     """
     try:
-        traders = db.query(Trader).filter(
-            Trader.total_trades >= min_trades,
-            Trader.performance_score.isnot(None)
-        ).order_by(
-            Trader.performance_score.desc()
-        ).limit(limit).all()
+        # Calculate trade counts on the fly since total_trades isn't updated
+        query = text("""
+            SELECT 
+                t.trader_id,
+                t.name,
+                t.title,
+                t.company_ticker,
+                t.company_name,
+                COUNT(tr.trade_id) as total_trades,
+                t.win_rate,
+                t.avg_return_30d,
+                t.avg_return_90d,
+                t.avg_return_1y,
+                t.performance_score,
+                t.total_profit_loss
+            FROM traders t
+            LEFT JOIN trades tr ON t.trader_id = tr.trader_id
+            GROUP BY t.trader_id, t.name, t.title, t.company_ticker, t.company_name, 
+                     t.win_rate, t.avg_return_30d, t.avg_return_90d, t.avg_return_1y, 
+                     t.performance_score, t.total_profit_loss
+            HAVING COUNT(tr.trade_id) >= :min_trades
+            ORDER BY COUNT(tr.trade_id) DESC
+            LIMIT :limit
+        """)
+        
+        result = db.execute(query, {"min_trades": min_trades, "limit": limit}).fetchall()
         
         return [
             LeaderboardResponse(
-                trader_id=trader.trader_id,
-                name=trader.name,
-                title=trader.title,
-                company_ticker=trader.company_ticker,
-                company_name=trader.company_name,
-                total_trades=trader.total_trades,
-                win_rate=float(trader.win_rate) if trader.win_rate else 0.0,
-                avg_return_30d=float(trader.avg_return_30d) if trader.avg_return_30d else 0.0,
-                avg_return_90d=float(trader.avg_return_90d) if trader.avg_return_90d else 0.0,
-                avg_return_1y=float(trader.avg_return_1y) if trader.avg_return_1y else 0.0,
-                performance_score=float(trader.performance_score) if trader.performance_score else 0.0,
-                total_profit_loss=float(trader.total_profit_loss) if trader.total_profit_loss else 0.0
+                trader_id=row[0],
+                name=row[1],
+                title=row[2],
+                company_ticker=row[3],
+                company_name=row[4],
+                total_trades=row[5],
+                win_rate=float(row[6]) if row[6] else 0.0,
+                avg_return_30d=float(row[7]) if row[7] else 0.0,
+                avg_return_90d=float(row[8]) if row[8] else 0.0,
+                avg_return_1y=float(row[9]) if row[9] else 0.0,
+                performance_score=float(row[10]) if row[10] else 0.0,
+                total_profit_loss=float(row[11]) if row[11] else 0.0
             )
-            for trader in traders
+            for row in result
         ]
         
     except Exception as e:
@@ -63,7 +83,7 @@ async def get_trader(trader_id: int, db: Session = Depends(get_db)):
         if not trader:
             raise HTTPException(status_code=404, detail="Trader not found")
         
-        # Get recent trades for this trader
+        # Get recent trades for this trader (limited for performance)
         recent_trades = db.query(Trade).filter(
             Trade.trader_id == trader_id
         ).order_by(
@@ -109,11 +129,83 @@ async def get_trader(trader_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching trader: {str(e)}")
 
+@router.get("/traders/{trader_id}/trades", response_model=List[TradeResponse])
+async def get_trader_trades(
+    trader_id: int,
+    page: int = Query(1, ge=1, description="Page number"),
+    limit: int = Query(50, ge=1, le=100, description="Number of trades per page"),
+    db: Session = Depends(get_db)
+):
+    """
+    Get all trades for a specific trader with pagination
+    """
+    try:
+        # Check if trader exists
+        trader = db.query(Trader).filter(Trader.trader_id == trader_id).first()
+        if not trader:
+            raise HTTPException(status_code=404, detail="Trader not found")
+        
+        # Calculate offset
+        offset = (page - 1) * limit
+        
+        # Get trades with pagination
+        trades = db.query(Trade).filter(
+            Trade.trader_id == trader_id
+        ).order_by(
+            Trade.transaction_date.desc()
+        ).offset(offset).limit(limit).all()
+        
+        return [
+            TradeResponse(
+                trade_id=trade.trade_id,
+                trader_name=trader.name,
+                trader_title=trader.title,
+                company_ticker=trade.company_ticker,
+                transaction_date=trade.transaction_date,
+                transaction_type=trade.transaction_type,
+                shares_traded=float(trade.shares_traded),
+                price_per_share=float(trade.price_per_share),
+                total_value=float(trade.total_value),
+                current_price=float(trade.current_price) if trade.current_price else None,
+                return_30d=float(trade.return_30d) if trade.return_30d else None,
+                return_90d=float(trade.return_90d) if trade.return_90d else None,
+                return_1y=float(trade.return_1y) if trade.return_1y else None,
+                filing_date=trade.filing_date
+            )
+            for trade in trades
+        ]
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching trader trades: {str(e)}")
+
+@router.get("/traders/{trader_id}/trades/count")
+async def get_trader_trades_count(trader_id: int, db: Session = Depends(get_db)):
+    """
+    Get total count of trades for a specific trader
+    """
+    try:
+        # Check if trader exists
+        trader = db.query(Trader).filter(Trader.trader_id == trader_id).first()
+        if not trader:
+            raise HTTPException(status_code=404, detail="Trader not found")
+        
+        # Get total count
+        total_count = db.query(Trade).filter(Trade.trader_id == trader_id).count()
+        
+        return {"total_trades": total_count}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching trader trades count: {str(e)}")
+
 @router.get("/trades/recent", response_model=List[TradeResponse])
 async def get_recent_trades(
     limit: int = Query(100, ge=1, le=500, description="Number of trades to return"),
     ticker: Optional[str] = Query(None, description="Filter by stock ticker"),
-    days: int = Query(30, ge=1, le=365, description="Number of days to look back"),
+    days: int = Query(1095, ge=1, le=3650, description="Number of days to look back"),
     db: Session = Depends(get_db)
 ):
     """
@@ -122,7 +214,7 @@ async def get_recent_trades(
     try:
         query = db.query(Trade).join(Trader)
         
-        # Filter by date
+        # Filter by date (default to 3 years since our data is historical)
         cutoff_date = datetime.now().date() - timedelta(days=days)
         query = query.filter(Trade.transaction_date >= cutoff_date)
         
@@ -209,8 +301,15 @@ async def get_platform_stats(db: Session = Depends(get_db)):
         total_trades = db.query(Trade).count()
         active_traders = db.query(Trader).filter(Trader.total_trades > 0).count()
         
+        # Calculate buy/sell ratio
+        buy_trades = db.query(Trade).filter(Trade.transaction_type.like('%BUY%')).count()
+        sell_trades = db.query(Trade).filter(Trade.transaction_type.like('%SELL%')).count()
+        buy_sell_ratio = buy_trades / sell_trades if sell_trades > 0 else 0
+        
+        # Calculate average trade size
+        avg_trade_size = db.query(func.avg(Trade.total_value)).scalar()
+        
         # Get most active companies
-        from sqlalchemy import func
         top_companies = db.query(
             Trade.company_ticker,
             func.count(Trade.trade_id).label('trade_count')
@@ -221,10 +320,22 @@ async def get_platform_stats(db: Session = Depends(get_db)):
         # Get latest trade date
         latest_trade = db.query(Trade).order_by(Trade.transaction_date.desc()).first()
         
+        # Calculate total unique companies
+        total_companies = db.query(Trade.company_ticker.distinct()).count()
+        
+        # Calculate average return 30d across all trades
+        avg_return_30d = db.query(func.avg(Trade.return_30d)).filter(
+            Trade.return_30d.isnot(None)
+        ).scalar()
+        
         return {
             "total_traders": total_traders,
             "total_trades": total_trades,
             "active_traders": active_traders,
+            "total_companies": total_companies,
+            "avg_return_30d": round(float(avg_return_30d), 2) if avg_return_30d else 0,
+            "buy_sell_ratio": round(buy_sell_ratio, 2),
+            "avg_trade_size": round(float(avg_trade_size), 2) if avg_trade_size else 0,
             "latest_trade_date": latest_trade.transaction_date.isoformat() if latest_trade else None,
             "top_companies": [
                 {"ticker": company[0], "trade_count": company[1]}
@@ -234,6 +345,59 @@ async def get_platform_stats(db: Session = Depends(get_db)):
         
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching platform stats: {str(e)}")
+
+@router.get("/analytics/sectors")
+async def get_sector_analytics(db: Session = Depends(get_db)):
+    """
+    Get sector-based analytics for dashboard
+    """
+    try:
+        # Get all sectors by volume
+        sector_volume = db.execute(text("""
+            SELECT 
+                COALESCE(t.sector, 'Other') as sector,
+                COUNT(tr.trade_id) as trade_count,
+                SUM(tr.total_value) as total_volume,
+                COUNT(CASE WHEN tr.transaction_type LIKE '%BUY%' THEN 1 END) as buy_count,
+                COUNT(CASE WHEN tr.transaction_type LIKE '%SELL%' THEN 1 END) as sell_count
+            FROM traders t
+            JOIN trades tr ON t.trader_id = tr.trader_id
+            WHERE t.sector IS NOT NULL
+            GROUP BY t.sector
+            ORDER BY total_volume DESC
+        """)).fetchall()
+        
+        # Get insider sentiment (buy vs sell ratio)
+        sentiment_data = db.execute(text("""
+            SELECT 
+                COUNT(CASE WHEN transaction_type LIKE '%BUY%' THEN 1 END) as buy_trades,
+                COUNT(CASE WHEN transaction_type LIKE '%SELL%' THEN 1 END) as sell_trades,
+                COUNT(*) as total_trades
+            FROM trades
+        """)).fetchone()
+        
+        return {
+            "top_sectors": [
+                {
+                    "sector": row[0],
+                    "trade_count": row[1],
+                    "total_volume": float(row[2]) if row[2] else 0,
+                    "buy_count": row[3],
+                    "sell_count": row[4],
+                    "buy_sell_ratio": round(row[3] / row[4], 2) if row[4] > 0 else 0
+                }
+                for row in sector_volume
+            ],
+            "insider_sentiment": {
+                "buy_trades": sentiment_data[0] if sentiment_data else 0,
+                "sell_trades": sentiment_data[1] if sentiment_data else 0,
+                "total_trades": sentiment_data[2] if sentiment_data else 0,
+                "bullish_percentage": round((sentiment_data[0] / sentiment_data[2]) * 100, 1) if sentiment_data and sentiment_data[2] > 0 else 0
+            }
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching sector analytics: {str(e)}")
 
 @router.post("/admin/update-data")
 async def update_sec_data():
@@ -603,3 +767,105 @@ async def get_trader_holdings(
         if "Trader not found" in str(e):
             raise e
         raise HTTPException(status_code=500, detail=f"Error fetching trader holdings: {str(e)}")
+
+@router.get("/search", response_model=List[SearchSuggestionResponse])
+async def search_suggestions(
+    q: str = Query(..., min_length=1, description="Search query"),
+    limit: int = Query(10, ge=1, le=20, description="Number of suggestions to return"),
+    db: Session = Depends(get_db)
+):
+    """
+    Search for traders and companies by name or ticker
+    """
+    try:
+        # Normalize search query - split into individual words
+        search_words = [word.strip().lower() for word in q.split() if word.strip()]
+        
+        if not search_words:
+            return []
+        
+        # Build dynamic query for traders - each word must be found in the name
+        trader_query = db.query(Trader)
+        for word in search_words:
+            trader_query = trader_query.filter(
+                func.lower(Trader.name).like(f"%{word}%")
+            )
+        
+        trader_results = trader_query.limit(limit // 2).all()
+        
+        # Search for companies by ticker (from traders table)
+        company_query = db.query(
+            Trader.company_ticker.label('ticker'),
+            Trader.company_name.label('name')
+        )
+        
+        # Search by ticker (exact match for tickers)
+        ticker_matches = company_query.filter(
+            func.lower(Trader.company_ticker).like(f"%{q.lower()}%")
+        ).distinct().limit(limit // 2).all()
+        
+        # Also search by company name (word-based like traders)
+        company_name_query = db.query(
+            Trader.company_ticker.label('ticker'),
+            Trader.company_name.label('name')
+        )
+        for word in search_words:
+            company_name_query = company_name_query.filter(
+                func.lower(Trader.company_name).like(f"%{word}%")
+            )
+        
+        company_name_matches = company_name_query.distinct().limit(limit // 2).all()
+        
+        # Combine and deduplicate results
+        company_results = ticker_matches + company_name_matches
+        seen_companies = set()
+        unique_company_results = []
+        for company in company_results:
+            if company.ticker not in seen_companies:
+                seen_companies.add(company.ticker)
+                unique_company_results.append(company)
+                if len(unique_company_results) >= limit // 2:
+                    break
+        
+        suggestions = []
+        
+        # Add trader suggestions
+        for trader in trader_results:
+            suggestions.append({
+                "type": "trader",
+                "id": trader.trader_id,
+                "name": trader.name,
+                "title": trader.title,
+                "company": trader.company_name,
+                "ticker": trader.company_ticker,
+                "display_text": f"{trader.name} ({trader.title}) - {trader.company_ticker}"
+            })
+        
+        # Add company suggestions
+        for company in unique_company_results:
+            suggestions.append({
+                "type": "company",
+                "id": None,
+                "name": company.name,
+                "title": None,
+                "company": company.name,
+                "ticker": company.ticker,
+                "display_text": f"{company.ticker} - {company.name}"
+            })
+        
+        # Remove duplicates and limit results
+        seen = set()
+        unique_suggestions = []
+        for suggestion in suggestions:
+            key = (suggestion["type"], suggestion["ticker"], suggestion["name"])
+            if key not in seen:
+                seen.add(key)
+                unique_suggestions.append(suggestion)
+                if len(unique_suggestions) >= limit:
+                    break
+        
+        return unique_suggestions
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error searching: {str(e)}")
+

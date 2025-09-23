@@ -46,3 +46,5 @@ echo "Press Ctrl+C to stop all servers"
 
 # Wait for both processes
 wait $BACKEND_PID $FRONTEND_PID
+
+
