@@ -1,0 +1,14 @@
+{
+  "2025q2_form345": {
+    "total_transactions": 94276,
+    "unique_companies": 1,
+    "unique_insiders": 1,
+    "date_range": {
+      "earliest": "NaT",
+      "latest": "NaT"
+    },
+    "transaction_types": {
+      "NONE": 94276
+    }
+  }
+}

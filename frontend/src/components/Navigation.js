@@ -8,9 +8,15 @@ const Navigation = () => {
         {/* Logo */}
         <div className="navbar-logo">
           <Link to="/" className="logo-link">
-            Insider
+            Insider Alpha
           </Link>
         </div>
+        
+        {/* Navigation Links */}
+        <nav className="navbar-nav">
+          <Link to="/" className="nav-link">Home</Link>
+          <Link to="/dashboard" className="nav-link">Dashboard</Link>
+        </nav>
       </div>
     </header>
   );
