@@ -1,49 +1,117 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import Navigation from '../components/Navigation';
+import Pagination from '../components/Pagination';
 
 const Dashboard = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const itemsPerPage = 20;
+
+  // Reset to page 1 when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   // Fetch transactions from Supabase
   useEffect(() => {
     fetchTransactions();
-  }, [searchTerm]);
+  }, [searchTerm, currentPage]);
 
   const fetchTransactions = async () => {
     try {
       setLoading(true);
       
-      let query = supabase
-        .from('transactions')
-        .select(`
-          *,
-          companies(name, ticker),
-          insiders(name, is_director, is_officer)
-        `)
-        .order('transaction_date', { ascending: false })
-        .limit(50);
-
-      // Apply search filter
-      if (searchTerm) {
-        query = query.or(`companies.name.ilike.%${searchTerm}%,insiders.name.ilike.%${searchTerm}%`);
-      }
-
-      const { data, error } = await query;
+      // Calculate offset for pagination
+      const offset = (currentPage - 1) * itemsPerPage;
       
-      if (error) {
-        console.error('Error fetching transactions:', error);
+      let transactions = [];
+      let totalCount = 0;
+      
+      if (searchTerm && searchTerm.trim()) {
+        // Simple search approach: Search companies first, then get their transactions
+        const searchPattern = `%${searchTerm.trim()}%`;
+        
+        // Get matching companies
+        const { data: companies } = await supabase
+          .from('companies')
+          .select('id')
+          .or(`name.ilike.${searchPattern},ticker.ilike.${searchPattern}`);
+        
+        if (companies && companies.length > 0) {
+          const companyIds = companies.map(c => c.id);
+          
+          // Get transactions for matching companies with proper joins
+          const { data: transactionData, count } = await supabase
+            .from('transactions')
+            .select(`
+              *,
+              companies(id, name, ticker),
+              insiders(id, name, is_director, is_officer)
+            `, { count: 'exact' })
+            .in('company_id', companyIds)
+            .not('insider_id', 'is', null)
+            .order('transaction_date', { ascending: false })
+            .range(offset, offset + itemsPerPage - 1);
+          
+          transactions = transactionData || [];
+          totalCount = count || 0;
+        }
       } else {
-        setTransactions(data || []);
+        // No search - get all transactions with valid foreign keys
+        const { data: transactionData, count } = await supabase
+          .from('transactions')
+          .select(`
+            *,
+            companies(id, name, ticker),
+            insiders(id, name, is_director, is_officer)
+          `, { count: 'exact' })
+          .not('company_id', 'is', null)
+          .not('insider_id', 'is', null)
+          .order('transaction_date', { ascending: false })
+          .range(offset, offset + itemsPerPage - 1);
+        
+        transactions = transactionData || [];
+        totalCount = count || 0;
       }
+      
+      setTotalItems(totalCount);
+      setTotalPages(Math.ceil(totalCount / itemsPerPage));
+      
+      if (!transactions || transactions.length === 0) {
+        setTransactions([]);
+        return;
+      }
+
+      // Data is already joined from the query, just format it
+      const enrichedTransactions = transactions.map(transaction => ({
+        ...transaction,
+        companies: transaction.companies,
+        insiders: transaction.insiders
+      }));
+
+      setTransactions(enrichedTransactions);
     } catch (error) {
       console.error('Error:', error);
+      setTransactions([]);
     } finally {
       setLoading(false);
     }
   };
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const clearSearch = () => {
+    setSearchTerm('');
+  };
+
+
 
   const formatTime = (dateString) => {
     if (!dateString) return 'N/A';
@@ -118,9 +186,21 @@ const Dashboard = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
+              {searchTerm && (
+                <button 
+                  onClick={clearSearch}
+                  className="search-clear-btn"
+                  aria-label="Clear search"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 6L6 18M6 6L18 18"/>
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
         </div>
+
 
         {/* Trades Table - Using EXACT same structure as homepage */}
         <div className="trades-table">
@@ -157,6 +237,16 @@ const Dashboard = () => {
             ))
           )}
         </div>
+
+        {/* Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          itemsPerPage={itemsPerPage}
+          totalItems={totalItems}
+          loading={loading}
+        />
       </div>
     </div>
   );
