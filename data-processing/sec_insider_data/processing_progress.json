@@ -1,0 +1,19 @@
+{
+  "completed": [
+    "2023q2_form345",
+    "2023q4_form345",
+    "2023q1_form345",
+    "2023q3_form345",
+    "2024q1_form345",
+    "2024q2_form345",
+    "2024q4_form345",
+    "2025q1_form345"
+  ],
+  "failed": [
+    "2024q3_form345",
+    "2025q2_form345"
+  ],
+  "current_quarter": null,
+  "start_time": "2025-09-25T19:30:39.296599",
+  "last_updated": "2025-09-25T21:19:58.065784"
+}
