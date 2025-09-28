@@ -314,38 +314,6 @@ const EnhancedDashboard = () => {
     return new Intl.NumberFormat('en-US').format(shares);
   };
 
-  const getTransactionType = (code) => {
-    const typeMap = {
-      'P': 'BUY',
-      'S': 'SELL',
-      'A': 'AWARD',
-      'D': 'DISPOSAL',
-      'F': 'FREE',
-      'G': 'GIFT',
-      'H': 'HOLD',
-      'I': 'INITIAL',
-      'J': 'OTHER',
-      'K': 'KEEP',
-      'L': 'LOAN',
-      'M': 'EXERCISE',
-      'N': 'NEW',
-      'O': 'OPTION',
-      'U': 'UNKNOWN',
-      'V': 'VEST',
-      'W': 'WITHDRAW',
-      'X': 'EXCHANGE',
-      'Y': 'YIELD',
-      'Z': 'ZERO'
-    };
-    return typeMap[code] || code;
-  };
-
-  const getValueClass = (code, value) => {
-    if (code === 'P') return 'positive';
-    if (code === 'S') return 'negative';
-    if (code === 'A' || code === 'G') return 'neutral';
-    return '';
-  };
 
   // Color logic based on transaction type
   const getTransactionColor = (transaction_code) => {
