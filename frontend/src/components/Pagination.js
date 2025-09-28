@@ -23,7 +23,15 @@ const Pagination = ({
     }
   };
 
-  if (totalPages <= 1) return null;
+  if (totalPages <= 1) {
+    return (
+      <div className="pagination-container">
+        <div className="pagination-info">
+          Showing {startItem}-{endItem} of {totalItems} transactions
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="pagination-container">
