@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import Navigation from '../components/Navigation';
 import Pagination from '../components/Pagination';
@@ -12,17 +12,7 @@ const Dashboard = () => {
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 20;
 
-  // Reset to page 1 when search term changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
-
-  // Fetch transactions from Supabase
-  useEffect(() => {
-    fetchTransactions();
-  }, [searchTerm, currentPage]);
-
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -33,45 +23,24 @@ const Dashboard = () => {
       let totalCount = 0;
       
       if (searchTerm && searchTerm.trim()) {
-        // Simple search approach: Search companies first, then get their transactions
+        // Search in the consolidated insider_transactions table
         const searchPattern = `%${searchTerm.trim()}%`;
         
-        // Get matching companies
-        const { data: companies } = await supabase
-          .from('companies')
-          .select('id')
-          .or(`name.ilike.${searchPattern},ticker.ilike.${searchPattern}`);
-        
-        if (companies && companies.length > 0) {
-          const companyIds = companies.map(c => c.id);
-          
-          // Get transactions for matching companies with proper joins
-          const { data: transactionData, count } = await supabase
-            .from('transactions')
-            .select(`
-              *,
-              companies(id, name, ticker),
-              insiders(id, name, is_director, is_officer)
-            `, { count: 'exact' })
-            .in('company_id', companyIds)
-            .not('insider_id', 'is', null)
-            .order('transaction_date', { ascending: false })
-            .range(offset, offset + itemsPerPage - 1);
-          
-          transactions = transactionData || [];
-          totalCount = count || 0;
-        }
-      } else {
-        // No search - get all transactions with valid foreign keys
+        // Search across company name, ticker, and insider name
         const { data: transactionData, count } = await supabase
-          .from('transactions')
-          .select(`
-            *,
-            companies(id, name, ticker),
-            insiders(id, name, is_director, is_officer)
-          `, { count: 'exact' })
-          .not('company_id', 'is', null)
-          .not('insider_id', 'is', null)
+          .from('insider_transactions')
+          .select('*', { count: 'exact' })
+          .or(`company_name.ilike.${searchPattern},company_ticker.ilike.${searchPattern},insider_name.ilike.${searchPattern}`)
+          .order('transaction_date', { ascending: false })
+          .range(offset, offset + itemsPerPage - 1);
+        
+        transactions = transactionData || [];
+        totalCount = count || 0;
+      } else {
+        // No search - get all transactions from consolidated table
+        const { data: transactionData, count } = await supabase
+          .from('insider_transactions')
+          .select('*', { count: 'exact' })
           .order('transaction_date', { ascending: false })
           .range(offset, offset + itemsPerPage - 1);
         
@@ -81,27 +50,24 @@ const Dashboard = () => {
       
       setTotalItems(totalCount);
       setTotalPages(Math.ceil(totalCount / itemsPerPage));
-      
-      if (!transactions || transactions.length === 0) {
-        setTransactions([]);
-        return;
-      }
-
-      // Data is already joined from the query, just format it
-      const enrichedTransactions = transactions.map(transaction => ({
-        ...transaction,
-        companies: transaction.companies,
-        insiders: transaction.insiders
-      }));
-
-      setTransactions(enrichedTransactions);
+      setTransactions(transactions);
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error fetching transactions:', error);
       setTransactions([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchTerm, currentPage, itemsPerPage]);
+
+  // Reset to page 1 when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  // Fetch transactions from Supabase
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -122,6 +88,24 @@ const Dashboard = () => {
       minute: '2-digit', 
       second: '2-digit' 
     });
+  };
+
+  const formatSignatureDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+  };
+
+  const formatInsiderRole = (relationship, title) => {
+    if (title) return title;
+    if (relationship === 'Director') return 'Director';
+    if (relationship === 'Officer') return 'Officer';
+    if (relationship === 'TenPercentOwner') return '10% Owner';
+    return relationship || 'N/A';
   };
 
   const formatCurrency = (value) => {
@@ -211,6 +195,9 @@ const Dashboard = () => {
             <div className="header-cell">SHARES</div>
             <div className="header-cell">VALUE</div>
             <div className="header-cell">TYPE</div>
+            <div className="header-cell">SECURITY</div>
+            <div className="header-cell">ROLE</div>
+            <div className="header-cell">SIGNATURE DATE</div>
           </div>
           
           {loading ? (
@@ -221,18 +208,24 @@ const Dashboard = () => {
               <div className="cell"></div>
               <div className="cell"></div>
               <div className="cell"></div>
+              <div className="cell"></div>
+              <div className="cell"></div>
+              <div className="cell"></div>
             </div>
           ) : (
             transactions.map((transaction) => (
               <div key={transaction.id} className="table-row">
                 <div className="cell">{formatTime(transaction.transaction_date)}</div>
-                <div className="cell">{transaction.insiders?.name || 'N/A'}</div>
-                <div className="cell">{transaction.companies?.ticker || 'N/A'}</div>
+                <div className="cell">{transaction.insider_name || 'N/A'}</div>
+                <div className="cell">{transaction.company_name || transaction.company_ticker || 'N/A'}</div>
                 <div className="cell">{formatShares(transaction.transaction_shares)}</div>
                 <div className={`cell ${getValueClass(transaction.transaction_code, transaction.calculated_transaction_value)}`}>
                   {formatCurrency(transaction.calculated_transaction_value)}
                 </div>
                 <div className="cell">{getTransactionType(transaction.transaction_code)}</div>
+                <div className="cell">{transaction.security_title || 'N/A'}</div>
+                <div className="cell">{formatInsiderRole(transaction.insider_relationship, transaction.insider_title)}</div>
+                <div className="cell">{formatSignatureDate(transaction.owner_signature_date)}</div>
               </div>
             ))
           )}
