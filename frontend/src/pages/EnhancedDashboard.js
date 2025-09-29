@@ -34,34 +34,26 @@ const EnhancedDashboard = () => {
     }
 
     const buyTransactions = transactionData.filter(t => 
-      t.transaction_code === 'P' || 
-      t.transaction_code === 'A' || 
-      t.transaction_code === 'D' ||
-      t.transaction_code === 'F' ||
-      t.transaction_code === 'G' ||
-      t.transaction_code === 'H' ||
-      t.transaction_code === 'I' ||
-      t.transaction_code === 'J' ||
-      t.transaction_code === 'K' ||
-      t.transaction_code === 'L' ||
-      t.transaction_code === 'M' ||
-      t.transaction_code === 'N' ||
-      t.transaction_code === 'O' ||
-      t.transaction_code === 'Q' ||
-      t.transaction_code === 'R' ||
-      t.transaction_code === 'T' ||
-      t.transaction_code === 'U' ||
-      t.transaction_code === 'V' ||
-      t.transaction_code === 'W' ||
-      t.transaction_code === 'X' ||
-      t.transaction_code === 'Y' ||
-      t.transaction_code === 'Z'
+      t.transaction_code === 'P' ||  // Purchase
+      t.transaction_code === 'A' ||  // Award
+      t.transaction_code === 'G' ||  // Grant
+      t.transaction_code === 'I' ||  // Incentive
+      t.transaction_code === 'M' ||  // Exercise
+      t.transaction_code === 'Q' ||  // Qualified
+      t.transaction_code === 'R' ||  // Return
+      t.transaction_code === 'T' ||  // Transfer
+      t.transaction_code === 'U' ||  // Underlying
+      t.transaction_code === 'V' ||  // Vesting
+      t.transaction_code === 'W' ||  // Warrant
+      t.transaction_code === 'X' ||  // Exchange
+      t.transaction_code === 'Y' ||  // Yield
+      t.transaction_code === 'Z'     // Zero
     );
 
     const sellTransactions = transactionData.filter(t => 
-      t.transaction_code === 'S' || 
-      t.transaction_code === 'C' || 
-      t.transaction_code === 'E'
+      t.transaction_code === 'S' ||  // Sale
+      t.transaction_code === 'D' ||  // Disposition
+      t.transaction_code === 'E'     // Expiration
     );
 
     const totalTransactions = transactionData.length;
@@ -75,14 +67,36 @@ const EnhancedDashboard = () => {
     const buyFlow = buyTransactions.reduce((sum, t) => sum + (t.calculated_transaction_value || 0), 0);
     const sellFlow = sellTransactions.reduce((sum, t) => sum + (t.calculated_transaction_value || 0), 0);
 
-    // Determine sentiment
+    // Determine sentiment based on both count and dollar flow
+    const totalFlow = buyFlow + sellFlow;
+    const buyFlowPercentage = totalFlow > 0 ? (buyFlow / totalFlow) * 100 : 0;
+    const sellFlowPercentage = totalFlow > 0 ? (sellFlow / totalFlow) * 100 : 0;
+    
     let sentiment = 'Neutral';
-    if (buyPercentage > 60) sentiment = 'Bullish';
-    else if (sellPercentage > 60) sentiment = 'Bearish';
+    // Use dollar flow as primary indicator for sentiment
+    if (buyFlowPercentage > 60) {
+      sentiment = 'Bullish';
+    } else if (sellFlowPercentage > 60) {
+      sentiment = 'Bearish';
+    }
+
+    // Debug logging
+    console.log('📊 Analytics Debug:', {
+      totalTransactions,
+      buyCount,
+      sellCount,
+      buyPercentage,
+      sellPercentage,
+      buyFlow,
+      sellFlow,
+      buyFlowPercentage: buyFlowPercentage.toFixed(1),
+      sellFlowPercentage: sellFlowPercentage.toFixed(1),
+      sentiment
+    });
 
     setAnalytics({
       flowSentiment: sentiment,
-      buySellRatio: `${buyPercentage}% / ${sellPercentage}%`,
+      buySellRatio: `${buyFlowPercentage.toFixed(1)}% / ${sellFlowPercentage.toFixed(1)}%`,
       buyFlow: buyFlow,
       sellFlow: sellFlow
     });
