@@ -1,17 +1,25 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import Navigation from '../components/Navigation';
 import Pagination from '../components/Pagination';
 
-const EnhancedDashboard = () => {
-  const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
+const UnifiedDashboard = () => {
+  const location = useLocation();
+  
+  // Search state
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const [itemsPerPage, setItemsPerPage] = useState(50);
+  const [loading, setLoading] = useState(false);
+  
+  // Data state
   const [allTransactions, setAllTransactions] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
   
   // Analytics state
   const [analytics, setAnalytics] = useState({
@@ -19,6 +27,16 @@ const EnhancedDashboard = () => {
     buySellRatio: '50% / 50%',
     buyFlow: 0,
     sellFlow: 0
+  });
+  
+  // Filter states
+  const [filters, setFilters] = useState({
+    startDate: '',
+    endDate: '',
+    companyName: '',
+    companyTicker: '',
+    insiderName: '',
+    transactionType: 'all'
   });
 
   // Calculate analytics from transaction data
@@ -57,7 +75,6 @@ const EnhancedDashboard = () => {
       t.transaction_code === 'E'     // Expiration
     );
 
-
     // Calculate total values
     const buyFlow = buyTransactions.reduce((sum, t) => sum + (t.calculated_transaction_value || 0), 0);
     const sellFlow = sellTransactions.reduce((sum, t) => sum + (t.calculated_transaction_value || 0), 0);
@@ -94,16 +111,6 @@ const EnhancedDashboard = () => {
       sellFlow: sellFlow
     });
   }, []);
-  
-  // Filter states
-  const [filters, setFilters] = useState({
-    startDate: '',
-    endDate: '',
-    companyName: '',
-    companyTicker: '',
-    insiderName: '',
-    transactionType: 'all'
-  });
 
   // Search-first approach: Only load data when user searches
   const fetchAllTransactions = useCallback(async () => {
@@ -154,136 +161,92 @@ const EnhancedDashboard = () => {
       query = query.order('transaction_date', { ascending: false });
       
       // Fetch data
-      console.log('📊 Executing search query...');
-      const { data: allData, count, error } = await query;
+      const { data, error, count } = await query;
       
       if (error) {
-        console.error('Supabase query error:', error);
-        throw error;
+        console.error('❌ Supabase error:', error);
+        setAllTransactions([]);
+        setTotalItems(0);
+        return;
       }
       
-      console.log('📈 Search results:', {
-        dataLength: allData?.length || 0,
-        count: count,
-        searchTerm: trimmedTerm
-      });
+      console.log(`✅ Found ${data?.length || 0} transactions (Total: ${count})`);
       
-      console.log('🔄 Setting state...');
-      setAllTransactions(allData || []);
-      setTotalItems(count || 0);
-      console.log('✅ State set - allTransactions:', allData?.length || 0, 'totalItems:', count || 0);
+      if (data && data.length > 0) {
+        setAllTransactions(data);
+        setTotalItems(count || data.length);
+        calculateAnalytics(data);
+      } else {
+        setAllTransactions([]);
+        setTotalItems(0);
+        setAnalytics({
+          flowSentiment: 'Neutral',
+          buySellRatio: '50% / 50%',
+          buyFlow: 0,
+          sellFlow: 0
+        });
+      }
+      
     } catch (error) {
-      console.error('Error fetching transactions:', error);
+      console.error('❌ Fetch error:', error);
       setAllTransactions([]);
       setTotalItems(0);
     } finally {
       setLoading(false);
     }
-  }, [searchTerm]);
+  }, [searchTerm, calculateAnalytics]);
 
-  // Reset to page 1 when search or filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, filters]);
-
-  // Fetch all data when search term changes
-  useEffect(() => {
-    fetchAllTransactions();
-  }, [fetchAllTransactions]);
-
-  // Apply filters to data
-  const applyFilters = useCallback((data) => {
-    console.log('Current filters:', filters);
-    
-    const filtered = data.filter(transaction => {
-      // Date range filter
-      if (filters.startDate && transaction.transaction_date < filters.startDate) return false;
-      if (filters.endDate && transaction.transaction_date > filters.endDate) return false;
-      
-      // Company name filter
-      if (filters.companyName && !transaction.company_name.toLowerCase().includes(filters.companyName.toLowerCase())) return false;
-      
-      // Company ticker filter
-      if (filters.companyTicker && !transaction.company_ticker.toLowerCase().includes(filters.companyTicker.toLowerCase())) return false;
-      
-      // Insider name filter
-      if (filters.insiderName && !transaction.insider_name.toLowerCase().includes(filters.insiderName.toLowerCase())) return false;
-      
-      // Transaction type filter
-      if (filters.transactionType !== 'all' && transaction.transaction_code !== filters.transactionType) return false;
-      
-      return true;
-    });
-    
-    console.log(`Filtered ${data.length} transactions down to ${filtered.length}`);
-    return filtered;
-  }, [filters]);
-
-  // Process and paginate the data
+  // Process transactions with filters and pagination
   const processTransactions = useCallback(() => {
-    console.log('🔄 Processing transactions...', {
-      allTransactionsLength: allTransactions.length,
-      currentPage: currentPage,
-      itemsPerPage: itemsPerPage
-    });
-    
-    if (allTransactions.length === 0) {
-      console.log('❌ No allTransactions data');
-      setTransactions([]);
-      setTotalPages(0);
-      return;
+    let filtered = [...allTransactions];
+
+    // Apply filters
+    if (filters.startDate) {
+      filtered = filtered.filter(t => new Date(t.transaction_date) >= new Date(filters.startDate));
+    }
+    if (filters.endDate) {
+      filtered = filtered.filter(t => new Date(t.transaction_date) <= new Date(filters.endDate));
+    }
+    if (filters.companyName) {
+      filtered = filtered.filter(t => 
+        t.company_name.toLowerCase().includes(filters.companyName.toLowerCase())
+      );
+    }
+    if (filters.companyTicker) {
+      filtered = filtered.filter(t => 
+        t.company_ticker.toLowerCase().includes(filters.companyTicker.toLowerCase())
+      );
+    }
+    if (filters.insiderName) {
+      filtered = filtered.filter(t => 
+        t.insider_name.toLowerCase().includes(filters.insiderName.toLowerCase())
+      );
+    }
+    if (filters.transactionType !== 'all') {
+      filtered = filtered.filter(t => t.transaction_code === filters.transactionType);
     }
 
-    // Apply filters first
-    const filteredData = applyFilters(allTransactions);
-    console.log('📊 Filtered data length:', filteredData.length);
-    
     // Calculate pagination
-    const totalFilteredItems = filteredData.length;
-    const totalPages = Math.ceil(totalFilteredItems / itemsPerPage);
-    setTotalPages(totalPages);
-    
-    // Get current page data
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const currentPageData = filteredData.slice(startIndex, endIndex);
+    const paginated = filtered.slice(startIndex, endIndex);
+
+    setTransactions(paginated);
     
-    console.log('📄 Pagination results:', {
-      totalFilteredItems,
-      totalPages,
-      currentPage,
-      startIndex,
-      endIndex,
-      currentPageDataLength: currentPageData.length
-    });
-    
-    setTransactions(currentPageData);
-    
-    // Calculate analytics from filtered data
-    calculateAnalytics(filteredData);
-  }, [allTransactions, currentPage, itemsPerPage, applyFilters, calculateAnalytics]);
+    // Recalculate analytics with filtered data
+    calculateAnalytics(filtered);
+  }, [allTransactions, filters, currentPage, itemsPerPage, calculateAnalytics]);
 
-  // Process data when sorting or pagination changes
-  useEffect(() => {
-    processTransactions();
-  }, [processTransactions]);
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  const handleItemsPerPageChange = (newItemsPerPage) => {
-    setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1);
-  };
-
-  const handleFilterChange = (filterType, value) => {
+  // Handle filter changes
+  const handleFilterChange = (filterName, value) => {
     setFilters(prev => ({
       ...prev,
-      [filterType]: value
+      [filterName]: value
     }));
+    setCurrentPage(1); // Reset to first page when filters change
   };
 
+  // Clear all filters
   const clearFilters = () => {
     setFilters({
       startDate: '',
@@ -296,6 +259,54 @@ const EnhancedDashboard = () => {
     setCurrentPage(1);
   };
 
+  // Handle page changes
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Handle items per page changes
+  const handleItemsPerPageChange = (newItemsPerPage) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
+
+  // Smooth scroll to results when search is triggered
+  const scrollToResults = () => {
+    setTimeout(() => {
+      const resultsSection = document.getElementById('results-section');
+      if (resultsSection) {
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  };
+
+  // Handle search with smooth scroll
+  const handleSearch = useCallback((term) => {
+    setSearchTerm(term);
+    fetchAllTransactions();
+    scrollToResults();
+  }, [fetchAllTransactions]);
+
+  // Handle URL search parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const searchParam = urlParams.get('search');
+    if (searchParam) {
+      setSearchTerm(searchParam);
+      handleSearch(searchParam);
+    }
+  }, [location.search, handleSearch]);
+
+  // Effects
+  useEffect(() => {
+    fetchAllTransactions();
+  }, [fetchAllTransactions]);
+
+  useEffect(() => {
+    processTransactions();
+  }, [processTransactions]);
+
+  // Format functions
   const formatSignatureDate = (dateString) => {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
@@ -321,7 +332,6 @@ const EnhancedDashboard = () => {
     return new Intl.NumberFormat('en-US').format(shares);
   };
 
-
   // Color logic based on transaction type
   const getTransactionColor = (transaction_code) => {
     // Green for purchases/acquisitions (bullish)
@@ -343,84 +353,76 @@ const EnhancedDashboard = () => {
       <Navigation />
       
       <div className="container py-8">
-
-        {/* Search Interface - Hero Section Styling */}
-        {!searchTerm || !searchTerm.trim() ? (
-          <section className="hero-section py-24">
-            <div className="container text-center">
-              <h1 className="hero-title">
-                <span className="gradient-text">Search Insider Trading Data</span>
-              </h1>
-              <p className="hero-subtitle">
-                Enter a company name, ticker symbol, or insider name to find transactions
-              </p>
-              
-              {/* Search Bar - Same styling as homepage */}
-              <div className="hero-search mb-8">
-                <div className="search-container">
-                  <div className="search-input-wrapper">
-                    <svg className="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    <input 
-                      type="text" 
-                      placeholder="Search for insider trades, executives, or companies..." 
-                      className="search-input"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              {/* Popular Searches */}
-              <div className="mt-6">
-                <p className="text-sm text-secondary mb-4">Popular searches:</p>
-                <div className="flex flex-wrap justify-center gap-2">
-                  {['Apple', 'Microsoft', 'Tesla', 'Amazon', 'Google', 'Meta', 'Elon Musk', 'Tim Cook'].map((term) => (
-                    <button
-                      key={term}
-                      onClick={() => setSearchTerm(term)}
-                      className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-full text-sm text-white transition-colors"
+        {/* Search Section - Always Visible */}
+        <section className="hero-section py-24">
+          <div className="container text-center">
+            <h1 className="hero-title">
+              <span className="gradient-text">Search Insider Trading Data</span>
+            </h1>
+            <p className="hero-subtitle">
+              Enter a company name, ticker symbol, or insider name to find transactions
+            </p>
+            
+            {/* Search Bar - Same styling as homepage */}
+            <div className="hero-search mb-8">
+              <div className="search-container">
+                <div className="search-input-wrapper">
+                  <svg className="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                  <input 
+                    type="text" 
+                    placeholder="Search for insider trades, executives, or companies..." 
+                    className="search-input"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSearch(searchTerm);
+                      }
+                    }}
+                  />
+                  {searchTerm && (
+                    <button 
+                      onClick={() => {
+                        setSearchTerm('');
+                        setAllTransactions([]);
+                        setTotalItems(0);
+                      }}
+                      className="search-clear-btn"
+                      aria-label="Clear search"
                     >
-                      {term}
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M18 6L6 18M6 6L18 18"/>
+                      </svg>
                     </button>
-                  ))}
+                  )}
                 </div>
               </div>
             </div>
-          </section>
-        ) : (
-          /* Show search bar and filters when searching */
-          <div className="mb-6 space-y-4">
-            {/* Search Bar */}
-            <div className="search-container">
-              <div className="search-input-wrapper">
-                <svg className="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                <input 
-                  type="text" 
-                  placeholder="Search for insider trades, executives, or companies..." 
-                  className="search-input"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                {searchTerm && (
-                  <button 
-                    onClick={() => setSearchTerm('')}
-                    className="search-clear-btn"
-                    aria-label="Clear search"
+            
+            {/* Popular Searches */}
+            <div className="mt-6">
+              <p className="text-sm text-secondary mb-4">Popular searches:</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {['Apple', 'Microsoft', 'Tesla', 'Amazon', 'Google', 'Meta', 'Elon Musk', 'Tim Cook'].map((term) => (
+                  <button
+                    key={term}
+                    onClick={() => handleSearch(term)}
+                    className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded-full text-sm text-white transition-colors"
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M18 6L6 18M6 6L18 18"/>
-                    </svg>
+                    {term}
                   </button>
-                )}
+                ))}
               </div>
             </div>
+          </div>
+        </section>
 
-            {/* Filter Controls - Compact */}
+        {/* Results Section - Only visible when searching */}
+        {searchTerm && searchTerm.trim() && (
+          <div id="results-section" className="space-y-6">
+            {/* Filter Controls */}
             <div className="flex flex-wrap gap-4 items-center">
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium text-secondary">Date:</label>
@@ -502,12 +504,7 @@ const EnhancedDashboard = () => {
                 Clear Filters
               </button>
             </div>
-          </div>
-        )}
 
-        {/* Show table and pagination only when searching */}
-        {searchTerm && searchTerm.trim() && (
-          <>
             {/* Pagination Controls */}
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-4">
@@ -612,6 +609,72 @@ const EnhancedDashboard = () => {
               </div>
             </div>
 
+            {/* New Analytics Row - 4 cards */}
+            <div className="analytics-grid mb-6">
+              {/* 1. Average Transaction Size */}
+              <div className="analytics-card">
+                <div className="analytics-header">
+                  <span className="analytics-label">Avg Transaction Size</span>
+                </div>
+                <div className="analytics-value text-white">
+                  $2.4M
+                </div>
+              </div>
+
+              {/* 2. Largest Transaction */}
+              <div className="analytics-card">
+                <div className="analytics-header">
+                  <span className="analytics-label">Largest Transaction</span>
+                </div>
+                <div className="analytics-value text-yellow-400">
+                  $125M
+                </div>
+                <div className="text-xs text-secondary mt-1">TSLA - Elon Musk</div>
+              </div>
+
+              {/* 7. Transaction Type Breakdown */}
+              <div className="analytics-card">
+                <div className="analytics-header">
+                  <span className="analytics-label">Transaction Types</span>
+                </div>
+                <div className="flex gap-2 mt-2">
+                  <div className="flex-1">
+                    <div className="text-xs text-secondary">Purchase</div>
+                    <div className="analytics-value text-green-400">45%</div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs text-secondary">Sale</div>
+                    <div className="analytics-value text-red-400">35%</div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs text-secondary">Other</div>
+                    <div className="analytics-value text-gray-400">20%</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 8. Insider Role Distribution */}
+              <div className="analytics-card">
+                <div className="analytics-header">
+                  <span className="analytics-label">Top Insider Roles</span>
+                </div>
+                <div className="space-y-1 mt-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-secondary">CEO</span>
+                    <span className="text-white font-semibold">32%</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-secondary">Director</span>
+                    <span className="text-white font-semibold">28%</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-secondary">CFO</span>
+                    <span className="text-white font-semibold">18%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Enhanced Trades Table */}
             <div className="trades-table">
               <div className="table-header">
@@ -706,11 +769,23 @@ const EnhancedDashboard = () => {
                 ))
               )}
             </div>
-          </>
+
+            {/* Pagination */}
+            <div className="pagination-container">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+                itemsPerPage={itemsPerPage}
+                totalItems={totalItems}
+                loading={loading}
+              />
+            </div>
+          </div>
         )}
       </div>
     </div>
   );
 };
 
-export default EnhancedDashboard;
+export default UnifiedDashboard;

@@ -20,10 +20,11 @@ const Navigation = () => {
           </Link>
         </div>
         
-        {/* Navigation Links - Centered */}
-        <nav className="navbar-nav navbar-nav-centered">
-          <Link to="/dashboard" className="nav-link">Dashboard</Link>
-        </nav>
+            {/* Navigation Links - Centered */}
+            <nav className="navbar-nav navbar-nav-centered">
+              <Link to="/dashboard" className="nav-link">Dashboard</Link>
+              <Link to="/flow" className="nav-link">Flow</Link>
+            </nav>
         
         {/* Auth Buttons - Right */}
         <div className="navbar-auth">

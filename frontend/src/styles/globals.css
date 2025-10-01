@@ -781,29 +781,16 @@ body {
   border: 2px solid var(--border-primary);
   border-radius: 12px;
   padding: 0;
-  transition: all 0.3s ease;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  animation: fadeInUp 1s ease-out 0.7s both;
 }
 
 .search-input-wrapper:hover {
-  transform: translateY(-2px);
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
 }
 
 .search-input-wrapper:focus-within {
   border-color: var(--accent-blue);
   box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-  animation: searchPulse 2s ease-in-out infinite;
-}
-
-@keyframes searchPulse {
-  0%, 100% {
-    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
-  }
-  50% {
-    box-shadow: 0 4px 25px rgba(59, 130, 246, 0.4);
-  }
 }
 
 .search-icon {
@@ -811,23 +798,6 @@ body {
   left: 16px;
   color: var(--text-muted);
   z-index: 1;
-  transition: all 0.3s ease;
-  animation: iconMorph 4s ease-in-out infinite;
-}
-
-@keyframes iconMorph {
-  0%, 100% {
-    transform: scale(1) rotate(0deg);
-  }
-  25% {
-    transform: scale(1.1) rotate(5deg);
-  }
-  50% {
-    transform: scale(0.9) rotate(-5deg);
-  }
-  75% {
-    transform: scale(1.05) rotate(3deg);
-  }
 }
 
 .search-input {
@@ -857,7 +827,6 @@ body {
   border-radius: 6px;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all 0.2s ease;
   margin-left: 8px;
   margin-right: 8px;
 }
@@ -1275,19 +1244,19 @@ body {
   background: var(--bg-secondary);
   display: grid;
   grid-template-columns: 1.5fr 0.8fr 1.2fr 0.7fr 0.8fr 1fr 1.5fr 1fr 1fr 1fr;
-  padding: 12px 16px;
+  padding: 3px 8px;
   border-bottom: 1px solid var(--border-primary);
-  gap: 8px;
+  gap: 3px;
 }
 
 .header-cell {
   color: var(--text-secondary);
-  font-size: 0.7rem;
+  font-size: 0.55rem;
   font-weight: 600;
   text-transform: uppercase;
   white-space: nowrap;
-  padding: 6px 8px;
-  border-radius: 4px;
+  padding: 2px 4px;
+  border-radius: 3px;
   transition: all 0.2s ease;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1317,14 +1286,23 @@ body {
 .table-row {
   display: grid;
   grid-template-columns: 1.5fr 0.8fr 1.2fr 0.7fr 0.8fr 1fr 1.5fr 1fr 1fr 1fr;
-  padding: 12px 16px;
+  padding: 3px 8px;
   border-bottom: 1px solid var(--border-muted);
-  gap: 8px;
+  gap: 3px;
   transition: all 0.2s ease;
+  min-height: 24px;
+}
+
+.table-row:nth-child(even) {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.table-row:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.01);
 }
 
 .table-row:hover {
-  background: var(--bg-hover);
+  background: var(--bg-hover) !important;
 }
 
 .table-row:last-child {
@@ -1333,14 +1311,14 @@ body {
 
 .cell {
   color: var(--text-primary);
-  font-size: 0.8rem;
-  padding: 6px 8px;
+  font-size: 0.65rem;
+  padding: 2px 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   display: flex;
   align-items: center;
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 .cell.positive {
