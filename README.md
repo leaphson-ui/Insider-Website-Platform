@@ -1,100 +1,325 @@
 # 📊 Insider Alpha Platform
 
-A real-time platform that tracks, analyzes, and ranks corporate insiders based on their trading performance.
+A modern insider trading intelligence platform that provides real-time SEC Form 4 data, advanced analytics, and institutional-grade research tools.
 
-## 🚀 Quick Start for Non-Coders
+## 🎯 Overview
 
-### Step 1: Get Your API Key
-1. Go to [Polygon.io](https://polygon.io/pricing)
-2. Sign up for an account
-3. Choose a plan (Basic $99/month or Starter $199/month recommended)
-4. Copy your API key from the dashboard
+Insider Alpha transforms complex SEC insider trading data into actionable intelligence. Track 10,000+ companies, 50,000+ insiders, and millions of transactions with powerful search, filtering, and analytics capabilities.
 
-### Step 2: Run the Setup
-```bash
-./setup.sh
+**Live Platform**: [https://insider-alpha-platform.vercel.app](https://insider-alpha-platform.vercel.app)
+
+## ✨ Key Features
+
+### 🔍 **Intelligent Search**
+- Search by company name, ticker symbol, or insider name
+- Real-time results from 1M+ transactions
+- Smart autocomplete and search suggestions
+
+### 📊 **Advanced Analytics**
+- **Flow Sentiment** - Bullish/Bearish/Neutral market sentiment
+- **Buy vs Sell Ratio** - Transaction volume breakdown
+- **Buy/Sell Flow** - Dollar value of buy and sell transactions
+- **Average Transaction Size** - Mean transaction value
+- **Largest Transaction** - Biggest trades with context
+- **Transaction Type Breakdown** - Purchase/Sale/Award distribution
+- **Insider Role Distribution** - CEO/CFO/Director activity analysis
+
+### 📈 **Comprehensive Dashboard**
+- Compact, high-density table showing 30+ transactions at once
+- Alternating row colors for easy scanning
+- 10 data columns: Ticker, Transaction Value, Insider Name, Title, Company, Code, Shares, Price, Shares After, Date
+- Color-coded transactions: Green (buy), Red (sell), Yellow (other)
+
+### 🎛️ **Robust Filtering** (Flow Page)
+- **Time Range**: 7d, 30d, 90d, YTD, or custom date range
+- **Transaction Value**: Filter by dollar thresholds or custom min/max
+- **Transaction Type**: Multi-select checkboxes for different transaction codes
+- **Company**: Search by name or ticker symbol
+- **Insider Role**: Filter by CEO, CFO, Director, Officer, President
+
+### 📱 **Responsive Design**
+- Mobile-optimized interface
+- Performance-focused architecture
+- Clean, professional UI following financial platform standards
+
+## 🏗️ Tech Stack
+
+### Frontend
+- **Framework**: React.js (Create React App)
+- **Styling**: Tailwind CSS + Custom CSS
+- **Routing**: React Router v6
+- **Icons**: Lucide React
+- **Deployment**: Vercel
+
+### Backend
+- **Database**: Supabase (PostgreSQL)
+- **Data Source**: SEC EDGAR (Form 4 filings)
+- **Processing**: Python data pipeline
+- **API**: Supabase REST API
+
+### Data Processing
+- **Language**: Python 3.x
+- **Libraries**: Pandas, NumPy
+- **Data Format**: TSV files from SEC EDGAR
+- **Storage**: PostgreSQL with optimized indexes
+
+## 📂 Project Structure
+
+```
+insider-alpha-platform/
+├── frontend/                 # React application
+│   ├── src/
+│   │   ├── components/      # Reusable UI components
+│   │   │   ├── Navigation.js
+│   │   │   ├── Pagination.js
+│   │   │   └── ui/          # Base UI components
+│   │   ├── pages/           # Page components
+│   │   │   ├── Homepage.js
+│   │   │   ├── UnifiedDashboard.js
+│   │   │   └── FlowDashboard.js
+│   │   ├── lib/             # Utilities
+│   │   │   └── supabase.js  # Supabase client
+│   │   └── styles/          # Global styles
+│   │       └── globals.css
+│   └── public/              # Static assets
+├── data-processing/         # Python data pipeline
+│   ├── processor_post_2023.py
+│   ├── ARCHITECTURE_NOTES.md
+│   └── README.md
+└── README.md
 ```
 
-### Step 3: Add Your API Key
-1. Open the file `backend/.env` in a text editor
-2. Replace `your_polygon_api_key_here` with your actual API key
-3. Save the file
+## 🚀 Getting Started
 
-### Step 4: Start the Platform
+### Prerequisites
+- Node.js 16+ and npm
+- Supabase account
+- Git
+
+### Installation
+
+1. **Clone the repository**
 ```bash
-./run_dev.sh
+git clone https://github.com/leaphson-ui/Insider-Website-Platform.git
+cd insider-alpha-platform
 ```
 
-### Step 5: View Your Platform
-- Open your web browser
-- Go to: http://localhost:3000
-- You should see the Insider Alpha dashboard!
-
-### Step 6: Load Data
-
-**Option A: Real SEC Data (Recommended)**
+2. **Install frontend dependencies**
 ```bash
-./configure_real_data.sh
+cd frontend
+npm install
 ```
 
-**Option B: Sample Data**
-```bash
-cd backend
-source venv/bin/activate
-python scripts/massive_data_generator.py
-python scripts/performance_calc.py
+3. **Set up environment variables**
+
+Create `frontend/.env` file:
+```env
+REACT_APP_SUPABASE_URL=your_supabase_url
+REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-## 🎯 What You'll See
+4. **Start development server**
+```bash
+npm start
+```
 
-### Dashboard
-- Overview of platform statistics
-- Top performing insiders
-- Recent trading activity
+Visit `http://localhost:3000` to see the platform.
 
-### Leaderboard
-- Ranked list of all insiders by performance
-- Filter by minimum trades, company, etc.
-- Click on any trader to see their profile
+### Production Build
 
-### Trader Profiles
-- Individual insider performance metrics
-- Complete trading history
-- Return calculations over different time periods
+```bash
+cd frontend
+npm run build
+```
 
-### Recent Trades
-- Latest insider trading activity
-- Filter by company, time period
-- See real-time performance of trades
+## 🗄️ Database Schema
 
-## 🆘 Need Help?
+### Main Table: `insider_transactions`
 
-**If something doesn't work:**
-1. Make sure PostgreSQL is installed and running
-2. Check that your API key is correct in `backend/.env`
-3. Try running the setup script again: `./setup.sh`
+**Key Columns:**
+- `company_name` - Company name
+- `company_ticker` - Stock ticker symbol
+- `insider_name` - Name of insider
+- `insider_title` - Role (CEO, CFO, Director, etc.)
+- `transaction_code` - SEC transaction code (P=Purchase, S=Sale, etc.)
+- `transaction_shares` - Number of shares
+- `transaction_price_per_share` - Price per share
+- `calculated_transaction_value` - Total dollar value
+- `shares_owned_following_transaction` - Shares owned after transaction
+- `transaction_date` - Date of transaction
+- `filing_date` - Date filed with SEC
+- `quarter` - Quarter of data (e.g., "2024q4")
 
-**Common Issues:**
-- "Database connection error" → PostgreSQL isn't running
-- "API key invalid" → Check your Polygon.io API key
-- "Port already in use" → Close other applications using ports 3000 or 8000
+## 📊 SEC Transaction Codes
 
-## 💰 Costs
+### Bullish/Buy Transactions
+- **P** - Purchase (open market or private)
+- **A** - Award (stock awards)
+- **G** - Grant (stock grants)
+- **M** - Exercise (option exercise)
+- **I**, **Q**, **R**, **T**, **U**, **V**, **W**, **X**, **Y**, **Z** - Various acquisition types
 
-**Polygon.io API:**
-- Basic: $99/month (good for testing)
-- Starter: $199/month (recommended for live use)
-- Free tier: Very limited, may not work well
+### Bearish/Sell Transactions
+- **S** - Sale (open market or private)
+- **D** - Disposition (sale via derivative)
+- **E** - Expiration (option expiration)
 
-**Other costs:**
-- Everything else is free (PostgreSQL, React, etc.)
+### Neutral/Other
+- **C** - Conversion
+- **F** - Payment of exercise price or tax
+- **J**, **K**, **L**, **O**, **H** - Other types
 
-## 🔍 Testing the Platform
+## 🎨 Design System
 
-1. **Check the Dashboard** - Should show stats and recent activity
-2. **Browse the Leaderboard** - See top performing insiders
-3. **Click on a Trader** - View detailed performance metrics
-4. **Filter Recent Trades** - Try different companies (AAPL, MSFT, etc.)
-5. **Watch for Updates** - Data refreshes as new trades come in
+### Color Palette
+- **Background**: `#0A0A0A` (primary), `#111111` (secondary)
+- **Card Background**: `#1C1C1C`
+- **Accent Blue**: `#3B82F6`
+- **Accent Green**: `#39FF14` (buys)
+- **Accent Red**: `#EF4444` (sells)
+- **Accent Yellow**: `#FFC233` (CTA, highlights)
+- **Text Primary**: `#FFFFFF`
+- **Text Secondary**: `#A3A3A3`
 
-The platform tracks real insider trading data and calculates performance scores automatically!
+### Typography
+- **Font Family**: Inter
+- **Sizes**: 0.55rem (table headers) to 5xl (hero titles)
+
+## 🔧 Development
+
+### Available Scripts
+
+**Frontend:**
+- `npm start` - Start development server (port 3000)
+- `npm run build` - Create production build
+- `npm test` - Run tests
+
+**Data Processing:**
+- `python processor_post_2023.py` - Process SEC data files
+- See `data-processing/README.md` for detailed instructions
+
+### Key Components
+
+**Navigation** (`Navigation.js`)
+- Global navigation bar
+- Links: Dashboard, Flow
+- Auth buttons: Log In, Sign Up
+
+**UnifiedDashboard** (`UnifiedDashboard.js`)
+- Search hero section with popular searches
+- Analytics cards
+- Transaction table
+- Conditional rendering based on search
+
+**FlowDashboard** (`FlowDashboard.js`)
+- Compact search bar with integrated filters
+- 8 analytics cards in 2 rows
+- Ultra-compact table (30+ rows visible)
+- Alternating row colors
+- Advanced filtering system
+
+## 📈 Performance Optimizations
+
+- **Client-side filtering** - Fast, responsive filtering without API calls
+- **Pagination** - Efficient rendering of large datasets
+- **Compact table design** - 40-50% more information density
+- **Optimized CSS** - Minimal bundle size, no heavy animations
+- **Search-first architecture** - Only loads data when needed
+- **Supabase queries** - Optimized with `.limit()` and targeted filters
+
+## 🚢 Deployment
+
+### Vercel (Current)
+Platform is deployed on Vercel with automatic builds on push to main branch.
+
+**Configuration** (`vercel.json`):
+```json
+{
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/build",
+  "installCommand": "cd frontend && npm install",
+  "framework": "create-react-app"
+}
+```
+
+### Manual Deployment
+```bash
+cd frontend
+npm run build
+npx vercel --prod
+```
+
+## 🔐 Environment Variables
+
+**Required:**
+- `REACT_APP_SUPABASE_URL` - Supabase project URL
+- `REACT_APP_SUPABASE_ANON_KEY` - Supabase anonymous key
+
+**Optional:**
+- `NODE_ENV` - Environment (development/production)
+
+## 📊 Data Pipeline
+
+### Current Data Coverage
+- **Historical**: 2023-2024 data processed
+- **Total Transactions**: 1M+ insider trades
+- **Companies**: 10,000+ tracked
+- **Insiders**: 50,000+ individuals
+
+### Data Processing Flow
+1. Download TSV files from SEC EDGAR
+2. Process with Python pipeline (`processor_post_2023.py`)
+3. Clean and transform data
+4. Load into Supabase PostgreSQL
+5. Frontend queries via Supabase client
+
+## 🎯 Roadmap
+
+### Completed ✅
+- [x] Homepage with hero section and product showcase
+- [x] Unified Dashboard with search and results
+- [x] Flow Dashboard with compact table design
+- [x] 8 analytics cards with real-time calculations
+- [x] Search functionality with URL parameters
+- [x] Pagination and records per page selector
+- [x] Color-coded transaction types
+- [x] Alternating row colors for readability
+- [x] Filter system foundation (Time Range, Transaction Value)
+- [x] Responsive navigation bar
+
+### In Progress 🚧
+- [ ] Complete filter system (Transaction Type, Company, Insider)
+- [ ] Filter persistence and saved searches
+- [ ] Active filter pills with remove buttons
+
+### Planned 📋
+- [ ] Real-time data updates
+- [ ] Watchlist functionality
+- [ ] Individual company/insider profile pages
+- [ ] Time-series charts for trend visualization
+- [ ] Alert system for unusual activity
+- [ ] Export to CSV/PDF
+- [ ] Mobile app (iOS/Android)
+- [ ] API access for developers
+- [ ] Authentication and user accounts
+
+## 🤝 Contributing
+
+This is a private project. For questions or collaboration inquiries, contact the project owner.
+
+## 📄 License
+
+All rights reserved. Proprietary and confidential.
+
+## 🆘 Support
+
+For technical issues:
+1. Check the `data-processing/ARCHITECTURE_NOTES.md` for data pipeline details
+2. Review `frontend/src/pages/` for component-specific documentation
+3. Contact the development team
+
+---
+
+**Built with ❤️ for institutional-grade insider trading intelligence**
+
+*Last updated: October 2025*
